@@ -54,4 +54,23 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return new ArrayList<>();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ChessPiece)) {
+            return false;
+        }
+
+        ChessPiece temp = (ChessPiece)obj;
+
+        return temp.type == this.type && temp.pieceColor == this.pieceColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * this.type.hashCode() + this.pieceColor.hashCode();
+    }
 }
