@@ -105,7 +105,7 @@ public class ChessPiece {
         int currentRow = myPosition.getRow();
         int currentCol = myPosition.getColumn();
 
-        if (currentRow < 8 && currentRow == homeRow) {
+        if (currentRow < 8 && currentRow >= 0 && currentRow == homeRow) {
             ChessPosition twoAhead = new ChessPosition(currentRow + rowIncrement + 1 * modifier, currentCol + 1);
             ChessPosition oneAhead = new ChessPosition(currentRow + rowIncrement, currentCol + 1);
             if (board.getPiece(twoAhead) == null && board.getPiece(oneAhead) == null) {
@@ -117,23 +117,28 @@ public class ChessPiece {
         // Can move straight ahead
 
         ChessPosition nextPosition = new ChessPosition(myPosition.getRow() + rowIncrement, myPosition.getColumn() + 1);
-        ChessPiece piece = board.getPiece(nextPosition);
-        if (piece == null) {
-            if (nextPosition.getRow() == finalRow) {
-                avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.QUEEN));
-                avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.ROOK));
-                avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.BISHOP));
-                avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.KNIGHT));
-            } else {
-                avMvs.add(new ChessMove(myPosition, nextPosition, null));
+        if (nextPosition.getRow() >= 0 && nextPosition.getColumn() >= 0 && nextPosition.getColumn() < 8 && nextPosition.getRow() < 8) {
+            ChessPiece piece = board.getPiece(nextPosition);
+            if (piece == null) {
+
+                if (nextPosition.getRow() == finalRow) {
+                    avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.QUEEN));
+                    avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.ROOK));
+                    avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.BISHOP));
+                    avMvs.add(new ChessMove(myPosition, nextPosition, PieceType.KNIGHT));
+                } else {
+                    avMvs.add(new ChessMove(myPosition, nextPosition, null));
+                }
+
             }
         }
 
             // can capture diagonally
             ChessPosition rightPosition = new ChessPosition(myPosition.getRow() + rowIncrement, myPosition.getColumn() + 2);
             ChessPosition leftPosition = new ChessPosition(myPosition.getRow() + rowIncrement, myPosition.getColumn());
+
+        if (rightPosition.getRow() >= 0 && rightPosition.getColumn() >= 0 && rightPosition.getColumn() < 8 && rightPosition.getRow() < 8) {
             ChessPiece rightPiece = board.getPiece(rightPosition);
-            ChessPiece leftPiece = board.getPiece(leftPosition);
 
             if (rightPiece != null && pieceColor != rightPiece.getTeamColor()) {
                 if (rightPosition.getRow() == finalRow) {
@@ -146,15 +151,20 @@ public class ChessPiece {
                 }
             }
 
+        }
 
-        if (leftPiece != null && pieceColor != leftPiece.getTeamColor()) {
-            if (leftPosition.getRow() == finalRow) {
-                avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.QUEEN));
-                avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.ROOK));
-                avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.BISHOP));
-                avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.KNIGHT));
-            } else {
-                avMvs.add(new ChessMove(myPosition, leftPosition, null));
+
+        if (leftPosition.getRow() >= 0 && leftPosition.getColumn() >= 0 && leftPosition.getColumn() < 8 && leftPosition.getRow() < 8) {
+            ChessPiece leftPiece = board.getPiece(leftPosition);
+            if (leftPiece != null && pieceColor != leftPiece.getTeamColor()) {
+                if (leftPosition.getRow() == finalRow) {
+                    avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.QUEEN));
+                    avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.ROOK));
+                    avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.BISHOP));
+                    avMvs.add(new ChessMove(myPosition, leftPosition, PieceType.KNIGHT));
+                } else {
+                    avMvs.add(new ChessMove(myPosition, leftPosition, null));
+                }
             }
         }
 
