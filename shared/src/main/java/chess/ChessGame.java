@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -12,9 +13,12 @@ public class ChessGame {
 
     boolean isWhitesTurn = true;
     TeamColor currentTeam;
+    ChessBoard board;
 
     public ChessGame() {
         this.currentTeam = TeamColor.WHITE;
+        board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
@@ -22,7 +26,7 @@ public class ChessGame {
      *
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return currentTeam;
     }
 
     /**
@@ -31,7 +35,12 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.currentTeam = team;
+        if (team == TeamColor.WHITE) {
+            currentTeam = TeamColor.BLACK;
+        }
+        else {
+            currentTeam = TeamColor.WHITE;
+        }
     }
 
     /**
@@ -100,7 +109,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -109,6 +118,19 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame = (ChessGame) o;
+        return isWhitesTurn == chessGame.isWhitesTurn && currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isWhitesTurn, currentTeam, board);
     }
 }
