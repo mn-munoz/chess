@@ -4,9 +4,8 @@ import java.util.ArrayList;
 
 public class QueenMoveCalculator extends MoveCalculator{
     @Override
-    protected void moveCheck(ArrayList<ChessMove> avMvs, ChessBoard board, ChessPosition myPosition) {
-        diagonalCheck(avMvs,board,myPosition);
-        calculateHorizontalMoves(avMvs, board, myPosition);
-        calculateVerticalMoves(avMvs, board, myPosition);
+    public void moveCheck(ArrayList<ChessMove> avMvs, ChessBoard board, ChessPosition myPosition) {
+        diagonalCheck(avMvs, board, myPosition);
+        straightCheck(avMvs, board, myPosition);
     }
 }

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 public class RookMoveCalculator extends MoveCalculator{
     @Override
-    protected void moveCheck(ArrayList<ChessMove> avMvs, ChessBoard board, ChessPosition myPosition) {
-        calculateHorizontalMoves(avMvs, board, myPosition);
-        calculateVerticalMoves(avMvs, board, myPosition);
+    public void moveCheck(ArrayList<ChessMove> avMvs, ChessBoard board, ChessPosition myPosition) {
+        straightCheck(avMvs, board, myPosition);
     }
 }
