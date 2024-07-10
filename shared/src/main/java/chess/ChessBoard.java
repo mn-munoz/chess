@@ -15,6 +15,18 @@ public class ChessBoard {
     public ChessBoard() {
     }
 
+    public ChessBoard(ChessBoard original) {
+        // Copy each piece from the other board
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = original.squares[i][j];
+                if (piece != null) {
+                    this.squares[i][j] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                }
+            }
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
