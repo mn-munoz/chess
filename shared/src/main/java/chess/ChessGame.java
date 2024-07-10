@@ -92,7 +92,8 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+
+        throw new InvalidMoveException("This is not a valid move");
     }
 
     /**
@@ -145,7 +146,38 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currentPosition = new ChessPosition(i, j);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(currentPosition);
+                    if (moves != null) {
+                        for (ChessMove move : moves) {
+                            // "make" move in the board
+                            ChessBoard copy = new ChessBoard(board);
+                            copy.addPiece(move.getStartPosition(), null);
+                            copy.addPiece(move.getEndPosition(), currentPiece);
+
+                            // check if king in check
+                            if (!isInCheck(teamColor)) {
+                                // there is at least one move to get king out of check
+                                return false;
+                            }
+
+                            // undo the move
+                            setBoard(copy);
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -167,7 +199,7 @@ public class ChessGame {
                 if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(currentPosition);
                     if (moves != null && !moves.isEmpty()) {
-                        return false; // Found at least one valid move
+                        return false;
                     }
                 }
             }
