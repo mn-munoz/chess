@@ -36,12 +36,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        if (team == TeamColor.WHITE) {
-            currentTeam = TeamColor.BLACK;
-        }
-        else {
-            currentTeam = TeamColor.WHITE;
-        }
+        currentTeam = team;
     }
 
     /**
@@ -106,20 +101,37 @@ public class ChessGame {
         if (validMoves == null || validMoves.isEmpty()) {
             throw new InvalidMoveException("No valid moves available");
         }
-
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("This is not a valid move");
         }
 
         board.addPiece(move.getStartPosition(), null);
-        board.addPiece(move.getStartPosition(), piece);
-
-        if (isInCheck(piece.getTeamColor())) {
-            throw new InvalidMoveException("This move puts king in check");
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            // Check the color
+            // Check if the move is in the promotion line of pawn
+            if (piece.getTeamColor() == TeamColor.WHITE && move.getEndPosition().getRow() == 8
+            || piece.getTeamColor() == TeamColor.BLACK && move.getEndPosition().getRow() == 1) {
+                // if it is, create a new piece with the given promotion piece
+                board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+            } else {
+                board.addPiece(move.getEndPosition(), piece);
+            }
+        }
+        else {
+            board.addPiece(move.getEndPosition(), piece);
         }
 
+        if (isInCheck(piece.getTeamColor())) {
+            setBoard(copy);
+            throw new InvalidMoveException("This move puts king in check");
 
+        }
 
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        } else {
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
