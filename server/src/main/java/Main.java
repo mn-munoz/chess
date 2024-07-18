@@ -1,21 +1,13 @@
 import chess.*;
 import spark.Spark;
+import server.Server;
+
 
 public class Main {
     public static void main(String[] args) {
-        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        System.out.println("♕ 240 Chess Server: " + piece);
+        Server server = new Server();
 
-        int port = 8080;
-        Spark.port(port);
-        Spark.staticFileLocation("/web");
+        server.run(8080);
 
-        createRoutes();
-        Spark.awaitInitialization();
-        System.out.println("Listening on port " + port);
-
-    }
-    private static void createRoutes() {
-        Spark.get("/hello", (req, res) -> "Hello BYU!");
     }
 }
