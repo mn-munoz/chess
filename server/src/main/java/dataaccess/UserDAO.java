@@ -1,9 +1,12 @@
 package dataaccess;
 
+import RequestsResults.RegisterRequest;
+import model.UserData;
+
 public interface UserDAO {
     public void clear();
 
-    public void createUser();
+    public void createUser(RegisterRequest request) throws DataAccessException;
 
-    public void getUser();
+    public UserData getUser(String username);
 }

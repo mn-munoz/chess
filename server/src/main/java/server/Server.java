@@ -1,7 +1,11 @@
 package server;
 
+import RequestsResults.RegisterRequest;
+import RequestsResults.RegisterResult;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import handlers.ClearHandler;
+import handlers.RegisterUserHandler;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -33,15 +37,25 @@ public class Server {
         UserService userService = new UserService();
         GameService gameService = new GameService();
         AuthService authService = new AuthService();
-        ClearHandler clearHandler = new ClearHandler(userService, gameService, authService);
+        Gson gson = new Gson();
 
         Spark.delete("/db", (request, response) -> {
-            Gson gson = new Gson();
+            ClearHandler clearHandler = new ClearHandler(userService, gameService, authService);
             clearHandler.clean();
             response.status(200);
-            response.type("application/json");
             return gson.toJson(new Object());
         });
-        ;
+
+        Spark.post("/user", (request, response) -> {
+            RegisterUserHandler registerHandler = new RegisterUserHandler(request.body(), userService, authService);
+            RegisterResult result = registerHandler.register();
+
+            if (result.getUsername() != null) {
+                response.status(200);
+            } else {
+                response.status(403);
+            }
+            return gson.toJson(result);
+        });
     }
 }

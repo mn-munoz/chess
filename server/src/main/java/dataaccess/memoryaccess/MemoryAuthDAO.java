@@ -6,12 +6,17 @@ import model.AuthData;
 import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
     private final Map<String, AuthData> authMap = new HashMap<>();
 
-    public void createAuth(AuthData auth){
-        authMap.put(auth.authToken(), auth);
+    // change this function so that it only inserts to the map. All other logic is applied in AuthService
+    public AuthData createAuth(String username){
+        String authToken = UUID.randomUUID().toString();
+        AuthData newAuth = new AuthData(authToken, username);
+        authMap.put(authToken, newAuth);
+        return newAuth;
     }
 
     public AuthData getAuth(AuthData auth) throws DataAccessException {

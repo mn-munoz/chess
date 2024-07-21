@@ -2,8 +2,9 @@ package dataaccess.memoryaccess;
 import java.util.HashMap;
 import java.util.Map;
 
+import RequestsResults.RegisterRequest;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
-import model.AuthData;
 import model.UserData;
 
 public class MemoryUserDAO implements UserDAO {
@@ -13,12 +14,11 @@ public class MemoryUserDAO implements UserDAO {
         usersMap.clear();
     }
 
-    public void createUser(){
-
-
+    public void createUser(RegisterRequest request){
+            usersMap.put(request.username(), new UserData(request.username(), request.password(), request.email()));
     }
 
-    public void getUser(){
-
+    public UserData getUser(String username){
+        return usersMap.getOrDefault(username,null);
     }
 }
