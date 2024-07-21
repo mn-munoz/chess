@@ -22,7 +22,7 @@ public class RegisterUserHandler {
 
     public RegisterResult register() {
         try {
-            userService.reqisterUser(request);
+            userService.registerUser(request);
             AuthData newToken = authService.createAuth(request.username());
             return new RegisterResult(request.username(), newToken.authToken());
         }
