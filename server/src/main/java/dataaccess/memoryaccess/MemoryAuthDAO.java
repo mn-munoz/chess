@@ -19,22 +19,17 @@ public class MemoryAuthDAO implements AuthDAO {
         return newAuth;
     }
 
-    public AuthData getAuth(AuthData auth) throws DataAccessException {
-        if(!authMap.containsKey(auth.authToken())) {
+    public AuthData getAuth(String auth) throws DataAccessException {
+        if(!authMap.containsKey(auth)) {
             throw new DataAccessException("Authorization token not found");
         }
         else {
-            return authMap.get(auth.authToken());
+            return authMap.get(auth);
         }
     }
 
-    public void deleteAuth(AuthData auth) throws DataAccessException {
-        if(!authMap.containsKey(auth.authToken())) {
-            throw new DataAccessException("Authorization token not found");
-        }
-        else {
-            authMap.remove(auth.authToken());
-        }
+    public void deleteAuth(String token)  {
+            authMap.remove(token);
     }
 
     public void clear() {

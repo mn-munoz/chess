@@ -2,8 +2,7 @@ package service;
 
 import dataaccess.memoryaccess.MemoryGameDAO;
 
-public class GameService {
-    MemoryGameDAO gameDAO = new MemoryGameDAO();
+public class GameService extends Service{
 
     public void clear() {
         gameDAO.clear();

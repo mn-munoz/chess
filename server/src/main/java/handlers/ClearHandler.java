@@ -1,23 +1,13 @@
 package handlers;
 
-import service.AuthService;
-import service.GameService;
-import service.UserService;
+import com.google.gson.JsonObject;
 
-public class ClearHandler {
-    private final UserService userService;
-    private final GameService gameService;
-    private final AuthService authService;
+public class ClearHandler extends Handler {
 
-    public ClearHandler(UserService userService, GameService gameService, AuthService authService) {
-        this.userService = userService;
-        this.gameService = gameService;
-        this.authService = authService;
-    }
-
-    public void clean() {
+    public JsonObject cleanService() {
         userService.clear();
-        gameService.clear();
         authService.clear();
+        gameService.clear();
+        return new JsonObject();
     }
 }

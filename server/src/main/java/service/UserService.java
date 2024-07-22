@@ -6,8 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.memoryaccess.MemoryUserDAO;
 import model.UserData;
 
-public class UserService {
-    MemoryUserDAO userDAO = new MemoryUserDAO();
+public class UserService extends Service{
     public void clear() {
         userDAO.clear();
     }
@@ -26,4 +25,5 @@ public class UserService {
         }
 
     }
+
 }
