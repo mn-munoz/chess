@@ -159,7 +159,33 @@ public class ServiceTests {
 
         // create game successfully
 
+    @Test
+    public void successfulCreateGame() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest request = new CreateGameRequest(authToken, "HelloGame");
+        CreateGameResult result = gameService. createGame(request);
+
+        assertNotNull(result);
+        assertNotNull(Service.GAME_DAO.getGame(result.gameID()));
+    }
+
         // bad request to create game
+
+    @Test
+    public void badRequestCreateGame() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest request = new CreateGameRequest(authToken, null);
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.createGame(request));
+
+        assertEquals("Error: bad request", exception.getMessage());
+    }
 
         // missing player color in request
 

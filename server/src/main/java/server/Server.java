@@ -38,7 +38,7 @@ public class Server {
                 return clearHandler.cleanService();
             } catch (Exception e) {
                 response.status(500);
-                return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+                return gson.toJson(new ErrorResult(e.getMessage()));
             }
 
         });
@@ -64,7 +64,7 @@ public class Server {
                else {
                    response.status(500);
                }
-               return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+               return gson.toJson(new ErrorResult(e.getMessage()));
            }
 
 
@@ -81,7 +81,7 @@ public class Server {
                else {
                    response.status(500);
                }
-               return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+               return gson.toJson(new ErrorResult(e.getMessage()));
            }
        }));
 
@@ -97,7 +97,7 @@ public class Server {
                else {
                    response.status(500);
                }
-               return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+               return gson.toJson(new ErrorResult(e.getMessage()));
            }
        });
    }

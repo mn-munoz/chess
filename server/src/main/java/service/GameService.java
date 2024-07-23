@@ -26,7 +26,7 @@ public class GameService extends Service{
             validateToken(request.authToken());
 
             if (request.gameName() == null) {
-                throw new DataAccessException("bad request");
+                throw new DataAccessException("Error: bad request");
             }
 
             GameData newGame = GAME_DAO.createGame(request);
@@ -42,7 +42,7 @@ public class GameService extends Service{
             AuthData data = validateToken(request.authToken());
             GameData game = GAME_DAO.getGame(request.gameID());
             if (request.playerColor() == null || game == null || !isValidColor(request.playerColor())) {
-                throw new DataAccessException("bad request");
+                throw new DataAccessException("Error: bad request");
             }
 
             GameData newGame = getGameData(request, game, data);
@@ -72,7 +72,7 @@ public class GameService extends Service{
 
         else if (request.playerColor().equalsIgnoreCase("BLACK")) {
             if (game.blackUsername() != null) {
-                throw new DataAccessException("already taken");
+                throw new DataAccessException("Error: already taken");
             }
             newGame = new GameData(game.gameID(), game.whiteUsername(), data.username(), game.gameName(), game.game());
         }
