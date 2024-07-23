@@ -6,9 +6,9 @@ import service.GameService;
 import service.UserService;
 
 public class Handler {
-    protected static UserService userService = new UserService();
-    protected static AuthService authService = new AuthService();
-    protected static GameService gameService = new GameService();
-    protected Gson gson = new Gson();
+    protected static final UserService userService = new UserService();
+    protected static final AuthService authService = new AuthService();
+    protected static final GameService gameService = new GameService();
+    protected final Gson gson = new Gson();
 
 }

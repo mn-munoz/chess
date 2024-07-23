@@ -57,7 +57,7 @@ public class StandardAPITests {
     @Test
     @Order(1)
     @DisplayName("Static Files")
-    public void staticFiles() throws Exception {
+    public void staticFiles() {
         String htmlFromServer = serverFacade.file("/").replaceAll("\r", "");
         Assertions.assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode(),
                 "Server response code was not 200 OK");
@@ -262,7 +262,7 @@ public class StandardAPITests {
     public void badGameIDJoin() {
         //create game
         createRequest = new TestCreateRequest("Bad Join");
-        TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
+        serverFacade.createGame(createRequest, existingAuth);
 
         //try join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, null);

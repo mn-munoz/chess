@@ -4,9 +4,9 @@ import RequestsResults.RegisterRequest;
 import model.UserData;
 
 public interface UserDAO {
-    public void clear();
+    void clear();
 
-    public void addUser(RegisterRequest request) throws DataAccessException;
+    void addUser(RegisterRequest request);
 
-    public UserData getUser(String username);
+    UserData getUser(String username);
 }

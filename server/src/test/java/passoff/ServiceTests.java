@@ -8,7 +8,7 @@ public class ServiceTests {
 
     @Test
     public void authClearTest() {
-        AuthService authService = new AuthService();
+        new AuthService();
     }
 
 

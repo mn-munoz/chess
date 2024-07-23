@@ -8,9 +8,9 @@ import model.AuthData;
 
 
 public abstract class Service {
-    protected static MemoryAuthDAO authDAO = new MemoryAuthDAO();
-    protected static MemoryUserDAO userDAO = new MemoryUserDAO();
-    protected static MemoryGameDAO gameDAO = new MemoryGameDAO();
+    protected static final MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    protected static final MemoryUserDAO userDAO = new MemoryUserDAO();
+    protected static final MemoryGameDAO gameDAO = new MemoryGameDAO();
 
     public abstract void clear();
 

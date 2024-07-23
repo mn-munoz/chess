@@ -6,7 +6,7 @@ import dataaccess.DataAccessException;
 import spark.*;
 
 public class LogoutUserHandler extends Handler{
-    LogoutRequest logoutRequest;
+    final LogoutRequest logoutRequest;
 
     public LogoutUserHandler(Request request) {
         this.logoutRequest = new LogoutRequest(request.headers("authorization"));

@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface GameDAO {
     GameData createGame(CreateGameRequest request);
 
-    GameData getGame(int gameID) throws DataAccessException;
+    GameData getGame(int gameID);
 
     Collection<GameSummary> listGames();
 

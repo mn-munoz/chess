@@ -7,7 +7,7 @@ import spark.Request;
 public class CreateGameHandler extends Handler{
     private final CreateGameRequest createRequest;
 
-    private record CreateRequestBody(String gameName){};
+    private record CreateRequestBody(String gameName){}
 
     public CreateGameHandler(Request request) {
         String authToken = request.headers("authorization");

@@ -5,7 +5,7 @@ import dataaccess.DataAccessException;
 import spark.*;
 
 public class LoginUserHandler extends Handler{
-    LoginRequest loginRequest;
+    final LoginRequest loginRequest;
 
     public LoginUserHandler(Request request) {
         this.loginRequest = gson.fromJson(request.body(), LoginRequest.class);
