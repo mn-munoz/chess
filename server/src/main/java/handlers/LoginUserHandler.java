@@ -1,6 +1,6 @@
 package handlers;
 
-import requestsResults.LoginRequest;
+import requestsresults.LoginRequest;
 import dataaccess.DataAccessException;
 import spark.*;
 
@@ -13,7 +13,7 @@ public class LoginUserHandler extends Handler{
 
     public String login() throws DataAccessException {
         try {
-            return gson.toJson(userService.loginUser(loginRequest));
+            return gson.toJson(USER_SERVICE.loginUser(loginRequest));
         }
         catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());

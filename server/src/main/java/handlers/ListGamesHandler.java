@@ -1,6 +1,6 @@
 package handlers;
 
-import requestsResults.ListGamesRequest;
+import requestsresults.ListGamesRequest;
 import dataaccess.DataAccessException;
 import spark.*;
 
@@ -16,7 +16,7 @@ public class ListGamesHandler extends Handler{
 
     public String listGames() throws DataAccessException {
         try {
-            return gson.toJson(gameService.listGames(listGamesRequest));
+            return gson.toJson(GAME_SERVICE.listGames(listGamesRequest));
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }

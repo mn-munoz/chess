@@ -1,5 +1,5 @@
 package handlers;
-import requestsResults.RegisterRequest;
+import requestsresults.RegisterRequest;
 import dataaccess.DataAccessException;
 import spark.*;
 
@@ -13,7 +13,7 @@ public class RegisterUserHandler extends Handler{
 
     public String register() throws DataAccessException {
         try {
-            return gson.toJson(userService.registerUser(registerRequest));
+            return gson.toJson(USER_SERVICE.registerUser(registerRequest));
         }
         catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());

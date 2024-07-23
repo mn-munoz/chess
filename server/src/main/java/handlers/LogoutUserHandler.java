@@ -1,6 +1,6 @@
 package handlers;
 
-import requestsResults.LogoutRequest;
+import requestsresults.LogoutRequest;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import spark.*;
@@ -14,7 +14,7 @@ public class LogoutUserHandler extends Handler{
 
     public String logout() throws DataAccessException {
         try {
-            userService.logoutUser(logoutRequest);
+            USER_SERVICE.logoutUser(logoutRequest);
             return gson.toJson(new JsonObject());
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());

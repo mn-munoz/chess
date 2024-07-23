@@ -5,9 +5,9 @@ import com.google.gson.JsonObject;
 public class ClearHandler extends Handler {
 
     public JsonObject cleanService() {
-        userService.clear();
-        authService.clear();
-        gameService.clear();
+        USER_SERVICE.clear();
+        AUTH_SERVICE.clear();
+        GAME_SERVICE.clear();
         return new JsonObject();
     }
 }

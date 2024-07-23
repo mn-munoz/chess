@@ -1,6 +1,6 @@
 package handlers;
 
-import requestsResults.CreateGameRequest;
+import requestsresults.CreateGameRequest;
 import dataaccess.DataAccessException;
 import spark.Request;
 
@@ -18,7 +18,7 @@ public class CreateGameHandler extends Handler{
 
     public String createGame() throws DataAccessException {
         try {
-            return gson.toJson(gameService.createGame(createRequest));
+            return gson.toJson(GAME_SERVICE.createGame(createRequest));
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }
