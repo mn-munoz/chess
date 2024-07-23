@@ -1,4 +1,4 @@
-package java.passoff;
+package java.service;
 
 import org.junit.jupiter.api.*;
 import service.AuthService;
