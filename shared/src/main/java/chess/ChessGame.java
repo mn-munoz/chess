@@ -140,40 +140,45 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = null;
 
-        outerLoop:
-        for (int i = 1; i <= 8;i++) {
-            innerLoop:
-            for (int j = 1; j <= 8;j++) {
+    public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = findKingPosition(teamColor);
+
+        if (kingPosition == null) {
+            return false;
+        }
+
+        return isPositionUnderAttack(kingPosition, teamColor);
+    }
+
+    private ChessPosition findKingPosition(TeamColor teamColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPosition = new ChessPosition(i, j);
-                if (board.getPiece(currentPosition) != null) {
-                    ChessPiece currentPiece = board.getPiece(currentPosition);
-                    if (currentPiece.type == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
-                        kingPosition = new ChessPosition(currentPosition.getRow(), currentPosition.getColumn());
-                        break outerLoop;
-                    }
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+                if (currentPiece != null && currentPiece.type == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
+                    return new ChessPosition(currentPosition.getRow(), currentPosition.getColumn());
                 }
             }
         }
+        return null;
+    }
 
-        for (int i = 1; i <= 8;i++) {
-            for (int j = 1; j <= 8;j++) {
+    private boolean isPositionUnderAttack(ChessPosition position, TeamColor teamColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPosition = new ChessPosition(i, j);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
                 if (currentPiece != null && currentPiece.getTeamColor() != teamColor) {
                     Collection<ChessMove> moves = currentPiece.pieceMoves(board, currentPosition);
                     for (ChessMove move : moves) {
-                        if (currentPiece.getTeamColor() != teamColor && move.getEndPosition().equals(kingPosition) ) {
+                        if (move.getEndPosition().equals(position)) {
                             return true;
                         }
                     }
-
                 }
             }
         }
-
         return false;
     }
 
@@ -183,10 +188,14 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+
+
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
             return false;
         }
+
+        boolean isCheckmate = true;
 
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -194,30 +203,36 @@ public class ChessGame {
                 ChessPiece currentPiece = board.getPiece(currentPosition);
                 if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = validMoves(currentPosition);
-                    if (moves != null) {
-                        for (ChessMove move : moves) {
-                            // "make" move in the board
-                            ChessBoard copy = new ChessBoard(board);
-                            copy.addPiece(move.getStartPosition(), null);
-                            copy.addPiece(move.getEndPosition(), currentPiece);
-
-                            // check if king in check
-                            if (!isInCheck(teamColor)) {
-                                // there is at least one move to get king out of check
-                                return false;
-                            }
-
-                            // undo the move
-                            setBoard(copy);
-                        }
-                    }
+                    isCheckmate = checkmateCheck(isCheckmate, moves, currentPiece, teamColor);
                 }
             }
         }
 
-        return true;
+        return isCheckmate;
     }
 
+    private boolean checkmateCheck(boolean isCheckmate, Collection<ChessMove> moves,
+                                   ChessPiece currentPiece,TeamColor teamColor ) {
+        if (moves != null) {
+            for (ChessMove move : moves) {
+                // "make" move in the board
+                ChessBoard copy = new ChessBoard(board);
+                copy.addPiece(move.getStartPosition(), null);
+                copy.addPiece(move.getEndPosition(), currentPiece);
+
+                // check if king in check
+                if (!isInCheck(teamColor)) {
+                    // there is at least one move to get king out of check
+                    isCheckmate = false;
+                }
+
+                // undo the move
+                setBoard(copy);
+            }
+        }
+
+        return isCheckmate;
+    }
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
