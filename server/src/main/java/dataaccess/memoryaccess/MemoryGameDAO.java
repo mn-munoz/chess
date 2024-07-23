@@ -2,6 +2,7 @@ package dataaccess.memoryaccess;
 
 import RequestsResults.CreateGameRequest;
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
 
@@ -20,16 +21,17 @@ public class MemoryGameDAO implements GameDAO {
         return newGame;
     }
 
-    public void getGame(){
-
+    public GameData getGame(int gameID) {
+        return gamesMap.getOrDefault(gameID, null);
     }
+
 
     public Collection<GameData> listGames(){
         return gamesMap.values();
     }
 
-    public void updateGame(){
-
+    public void updateGame(int gameID, GameData game){
+        gamesMap.put(gameID, game);
     }
 
     public void clear() {
