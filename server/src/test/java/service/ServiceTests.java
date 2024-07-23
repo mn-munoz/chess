@@ -135,9 +135,29 @@ public class ServiceTests {
 
         // successful listing of games
 
+    @Test
+    public void successfulListingGames() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
 
+        ListGamesRequest request = new ListGamesRequest(authToken);
+        ListGamesResult result = gameService.listGames(request);
 
+        assertNotNull(result);
+    }
         // not authorized to create games
+
+    @Test
+    public void unauthorizedCreateGame() {
+        CreateGameRequest request = new CreateGameRequest(null, "HelloGame");
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.createGame(request));
+
+        assertNotNull(exception);
+        assertEquals("Error: unauthorized", exception.getMessage());
+    }
 
         // create game successfully
 
