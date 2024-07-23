@@ -3,7 +3,6 @@ package service;
 import org.junit.jupiter.api.*;
 import requestsresults.RegisterRequest;
 import requestsresults.RegisterResult;
-import service.UserService;
 import dataaccess.DataAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,30 +12,46 @@ public class ServiceTests {
 
     // User Service Tests
 
-//    @Test
-        // Successful Register
-//    public void successfulRegistration() throws DataAccessException {
-//        RegisterRequest request =
-//                new RegisterRequest("user", "12345", "user@gmail.com");
-//        RegisterResult result = userService.registerUser(request);
-//        RegisterResult expectedResult = new RegisterResult("user", )
-//    }
+
+    @AfterEach
+    public void cleanServices() {
+        userService.clear();
+    }
+
+    @Test
+         // Successful Register
+    public void successfulRegistration() throws DataAccessException {
+        RegisterRequest request =
+                new RegisterRequest("user", "12345", "user@gmail.com");
+        RegisterResult result = userService.registerUser(request);
+        RegisterResult expectedResult = new RegisterResult("user", result.authToken());
+
+        assertNotNull(result);
+        assertEquals(expectedResult, result);
+    }
 
         // Request is not valid
 
     @Test
     public void registrationNotValid() {
         RegisterRequest request = new RegisterRequest(null, "123", "asd@gmail.com");
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-            userService.registerUser(request);
-        });
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                userService.registerUser(request));
 
         assertEquals("Error: bad request", exception.getMessage());
     }
 
-        // Request not valid
-
         // User already taken
+
+    @Test
+    public void UserAlreadyTaken() throws DataAccessException {
+        RegisterRequest request = new RegisterRequest("user", "123", "asd@gmail.com");
+        userService.registerUser(request);
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+            userService.registerUser(request));
+
+        assertEquals("Error: already taken", exception.getMessage());
+    }
 
         // Successful Login
 
