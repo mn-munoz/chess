@@ -11,5 +11,4 @@ public class Handler {
     protected static GameService gameService = new GameService();
     protected Gson gson = new Gson();
 
-
 }

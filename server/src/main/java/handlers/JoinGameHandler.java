@@ -8,24 +8,14 @@ import spark.Request;
 public class JoinGameHandler extends Handler {
     private final JoinGameRequest joinRequest;
 
-    private static class BodyContent {
-        private String playerColor;
-        private int gameID;
-
-        public String getPlayerColor() {
-            return playerColor;
-        }
-
-        public int getGameID() {
-            return gameID;
-        }
+    private record BodyContent(String playerColor, int gameID) {
     }
 
     public JoinGameHandler(Request request) {
         String authToken = request.headers("authorization");
         BodyContent bodyContent = gson.fromJson(request.body(), BodyContent.class);
 
-        this.joinRequest = new JoinGameRequest(authToken, bodyContent.getPlayerColor(), bodyContent.getGameID());
+        this.joinRequest = new JoinGameRequest(authToken, bodyContent.playerColor, bodyContent.gameID());
     }
 
     public String joinGame() throws DataAccessException {

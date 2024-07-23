@@ -31,21 +31,6 @@ public class Server {
     private void createRoutes(){
         Gson gson = new Gson();
 
-//        Spark.before("/session", "DELETE", (request, response) -> {
-//            System.out.println(request.getClass());
-//            String authToken = request.headers("authorization");
-//            if () {
-//                halt(401, unauthorizedJson);
-//            }
-//        });
-
-//        Spark.before("/game", (request, response) -> {
-//            String authToken = request.headers("authorization");
-//            if (authToken == null || !authService.isAuthorized(authToken)) {
-//                halt(401, unauthorizedJson);
-//            }
-//        });
-
         Spark.delete("/db", (request, response) -> {
             try {
                 ClearHandler clearHandler = new ClearHandler();
@@ -126,7 +111,7 @@ public class Server {
                 return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
             }
         }));
-//
+
         Spark.post("/game", ((request, response) -> {
             try {
                 CreateGameHandler createGameHandler = new CreateGameHandler(request);

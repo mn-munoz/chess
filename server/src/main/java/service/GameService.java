@@ -36,12 +36,12 @@ public class GameService extends Service{
         }
     }
 
+
     public void joinGame(JoinGameRequest request) throws DataAccessException {
         try {
             AuthData data = validateToken(request.authToken());
-
             GameData game = gameDAO.getGame(request.gameID());
-            if (request.playerColor() == null || game == null) {
+            if (request.playerColor() == null || game == null || !isValidColor(request.playerColor())) {
                 throw new DataAccessException("bad request");
             }
 
@@ -54,17 +54,25 @@ public class GameService extends Service{
         }
     }
 
-    private static GameData getGameData(JoinGameRequest request, GameData game, AuthData data) throws DataAccessException {
-        GameData newGame = null;
+    private boolean isValidColor(String playerColor) {
+        return playerColor.equals("WHITE") || playerColor.equals("BLACK");
+    }
+
+    private GameData getGameData(JoinGameRequest request, GameData game, AuthData data) throws DataAccessException {
+
+        System.out.println("Step 1");
+        GameData newGame = game;
 
         if (request.playerColor().equals("WHITE")) {
+            System.out.println("WHITE");
             if (game.whiteUsername() != null) {
                 throw new DataAccessException("already taken");
             }
             newGame = new GameData(game.gameID(), data.username(), game.blackUsername(), game.gameName(), game.game());
         }
 
-        if (request.playerColor().equals("BLACK")) {
+        else if (request.playerColor().equals("BLACK")) {
+            System.out.println("BLACK");
             if (game.blackUsername() != null) {
                 throw new DataAccessException("already taken");
             }

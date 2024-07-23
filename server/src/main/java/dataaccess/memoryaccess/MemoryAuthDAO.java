@@ -9,7 +9,6 @@ import java.util.UUID;
 public class MemoryAuthDAO implements AuthDAO {
     private final Map<String, AuthData> authMap = new HashMap<>();
 
-    // change this function so that it only inserts to the map. All other logic is applied in AuthService
     public AuthData createAuth(String username){
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, username);
