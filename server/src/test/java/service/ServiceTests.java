@@ -7,16 +7,16 @@ import dataaccess.DataAccessException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
-    private final UserService USER_SERVICE = new UserService();
-    private final GameService GAME_SERVICE = new GameService();
+    private final UserService userService = new UserService();
+    private final GameService gameService = new GameService();
 
     // User Service Tests
 
 
     @AfterEach
     public void cleanServices() {
-        USER_SERVICE.clear();
-        GAME_SERVICE.clear();
+        userService.clear();
+        gameService.clear();
     }
 
     @Test
@@ -24,7 +24,7 @@ public class ServiceTests {
     public void successfulRegistration() throws DataAccessException {
         RegisterRequest request =
                 new RegisterRequest("user", "12345", "user@gmail.com");
-        RegisterResult result = USER_SERVICE.registerUser(request);
+        RegisterResult result = userService.registerUser(request);
         RegisterResult expectedResult = new RegisterResult("user", result.authToken());
 
         assertNotNull(result);
@@ -37,7 +37,7 @@ public class ServiceTests {
     public void registrationNotValid() {
         RegisterRequest request = new RegisterRequest(null, "123", "asd@gmail.com");
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-                USER_SERVICE.registerUser(request));
+                userService.registerUser(request));
 
         assertEquals("Error: bad request", exception.getMessage());
     }
@@ -47,9 +47,9 @@ public class ServiceTests {
     @Test
     public void userAlreadyTaken() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "123", "asd@gmail.com");
-        USER_SERVICE.registerUser(request);
+        userService.registerUser(request);
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-            USER_SERVICE.registerUser(request));
+            userService.registerUser(request));
 
         assertEquals("Error: already taken", exception.getMessage());
     }
@@ -59,9 +59,9 @@ public class ServiceTests {
     @Test
     public void successfulLogin() throws DataAccessException {
         RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
-        USER_SERVICE.registerUser(existingUser);
+        userService.registerUser(existingUser);
         LoginRequest request = new LoginRequest("user", "123");
-        LoginResult result = USER_SERVICE.loginUser(request);
+        LoginResult result = userService.loginUser(request);
 
         assertNotNull(result);
         assertEquals("user", Service.AUTH_DAO.getAuth(result.authToken()).username());
@@ -71,10 +71,10 @@ public class ServiceTests {
     @Test
     public void wrongPasswordLogin() throws DataAccessException {
         RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
-        USER_SERVICE.registerUser(existingUser);
+        userService.registerUser(existingUser);
         LoginRequest request = new LoginRequest("user", "1234");
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-                USER_SERVICE.loginUser(request));
+                userService.loginUser(request));
 
         assertNotNull(exception);
         assertEquals("Error: unauthorized", exception.getMessage());
@@ -86,7 +86,7 @@ public class ServiceTests {
     public void loginNonExistentUser() {
         LoginRequest request = new LoginRequest("user", "123");
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-                USER_SERVICE.loginUser(request));
+                userService.loginUser(request));
 
         assertNotNull(exception);
         assertEquals("Error: unauthorized", exception.getMessage());
@@ -99,7 +99,7 @@ public class ServiceTests {
         LogoutRequest request = new LogoutRequest(null);
 
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-                USER_SERVICE.logoutUser(request));
+                userService.logoutUser(request));
 
         assertNotNull(exception);
         assertEquals("Error: unauthorized", exception.getMessage());
@@ -109,12 +109,12 @@ public class ServiceTests {
     @Test
     public void successfulLogout() throws DataAccessException {
         RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
-        RegisterResult regResult = USER_SERVICE.registerUser(existingUser);
+        RegisterResult regResult = userService.registerUser(existingUser);
         String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
 
         LogoutRequest request = new LogoutRequest(authToken);
         assertDoesNotThrow(() -> {
-            USER_SERVICE.logoutUser(request);
+            userService.logoutUser(request);
         }, "Error: unauthorized");
     }
 
@@ -127,7 +127,7 @@ public class ServiceTests {
         ListGamesRequest request = new ListGamesRequest(null);
 
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
-                GAME_SERVICE.listGames(request));
+                gameService.listGames(request));
 
         assertNotNull(exception);
         assertEquals("Error: unauthorized", exception.getMessage());
