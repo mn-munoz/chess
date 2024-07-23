@@ -1,16 +1,10 @@
 package server;
 
 import RequestsResults.ErrorResult;
-import RequestsResults.LoginResult;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import handlers.ClearHandler;
-import handlers.LoginUserHandler;
-import handlers.RegisterUserHandler;
-import service.AuthService;
+import handlers.*;
 import spark.*;
-
-import static spark.Spark.halt;
 
 public class Server {
 
@@ -35,14 +29,12 @@ public class Server {
     }
 
     private void createRoutes(){
-        AuthService authService = new AuthService();
         Gson gson = new Gson();
-//        String unauthorizedJson = gson.toJson(new RegisterResult("Error:unauthorized"));
-//
+
 //        Spark.before("/session", "DELETE", (request, response) -> {
 //            System.out.println(request.getClass());
 //            String authToken = request.headers("authorization");
-//            if (authToken == null || !authService.isAuthorized(authToken)) {
+//            if () {
 //                halt(401, unauthorizedJson);
 //            }
 //        });
@@ -72,10 +64,10 @@ public class Server {
                 response.status(200);
                 return registerHandler.register();
             } catch (Exception e) {
-                if (e instanceof  DataAccessException && e.getMessage().contains("bad request")) {
+                if (e.getMessage().contains("bad request")) {
                     response.status(400);
                 }
-                else if (e instanceof  DataAccessException && e.getMessage().contains("already taken")) {
+                else if (e.getMessage().contains("already taken")) {
                     response.status(403);
                 }
                 else {
@@ -86,7 +78,6 @@ public class Server {
 
 
         });
-//
         Spark.post("/session", ((request, response) -> {
             try {
                 LoginUserHandler loginHandler = new LoginUserHandler(request);
@@ -102,22 +93,58 @@ public class Server {
                 return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
             }
         }));
+
+        Spark.delete("/session", (request, response) -> {
+            try {
+                LogoutUserHandler logoutHandler = new LogoutUserHandler(request);
+                response.status(200);
+                return logoutHandler.logout();
+            } catch (Exception e) {
+                if (e instanceof DataAccessException) {
+                    response.status(401);
+                }
+                else {
+                    response.status(500);
+                }
+                return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+            }
+        });
+
+
+        Spark.get("/game", ((request, response) -> {
+            try {
+                ListGamesHandler listGamesHandler = new ListGamesHandler(request);
+                response.status(200);
+                return listGamesHandler.listGames();
+            } catch (Exception e) {
+                if (e instanceof DataAccessException) {
+                    response.status(401);
+                }
+                else {
+                    response.status(500);
+                }
+                return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+            }
+        }));
 //
-//        Spark.delete("/session", ((request, response) -> {
-//            response.status(200);
-//        }));
-//
-//        Spark.get("/game", ((request, response) -> {
-//            response.status(200);
-//            System.out.println("hello");
-//            return gson.toJson(new Object());
-//        }));
-//
-//        Spark.post("/game", ((request, response) -> {
-//            response.status(200);
-//            System.out.println("hello");
-//            return gson.toJson(new Object());
-//        }));
+        Spark.post("/game", ((request, response) -> {
+            try {
+                CreateGameHandler createGameHandler = new CreateGameHandler(request);
+                response.status(200);
+                return createGameHandler.createGame();
+            } catch (Exception e) {
+                if (e.getMessage().contains("bad request")) {
+                    response.status(400);
+                }
+                else if (e.getMessage().contains("unauthorized")) {
+                    response.status(401);
+                }
+                else {
+                    response.status(500);
+                }
+                return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
+            }
+        }));
 //
 //        Spark.put("/game", ((request, response) -> {
 //            response.status(200);

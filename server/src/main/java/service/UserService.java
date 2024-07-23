@@ -1,11 +1,7 @@
 package service;
 
-import RequestsResults.LoginRequest;
-import RequestsResults.LoginResult;
-import RequestsResults.RegisterRequest;
-import RequestsResults.RegisterResult;
+import RequestsResults.*;
 import dataaccess.DataAccessException;
-import dataaccess.memoryaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 
@@ -39,6 +35,15 @@ public class UserService extends Service{
 
         AuthData authData = authDAO.createAuth(request.username());
         return new LoginResult(request.username(), authData.authToken());
+    }
+
+    public void logoutUser(LogoutRequest request) throws DataAccessException {
+        try {
+            AuthData tokenToDelete = validateToken(request.authToken());
+            authDAO.deleteAuth(tokenToDelete.authToken());
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
 

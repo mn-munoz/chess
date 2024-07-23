@@ -1,10 +1,7 @@
 package handlers;
 
 import RequestsResults.LoginRequest;
-import RequestsResults.LoginResult;
-import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.AuthData;
 import spark.*;
 
 public class LoginUserHandler extends Handler{

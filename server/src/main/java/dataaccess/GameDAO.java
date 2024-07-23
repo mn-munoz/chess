@@ -1,11 +1,16 @@
 package dataaccess;
 
+import RequestsResults.CreateGameRequest;
+import model.GameData;
+
+import java.util.Collection;
+
 public interface GameDAO {
-    public void createGame();
+    GameData createGame(CreateGameRequest request);
 
-    public void getGame();
+    void getGame();
 
-    public void listGames();
+    Collection<GameData> listGames();
 
-    public void updateGame();
+    void updateGame();
 }

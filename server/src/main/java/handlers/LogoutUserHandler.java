@@ -1,24 +1,25 @@
 package handlers;
 
 import RequestsResults.LogoutRequest;
-import com.google.gson.Gson;
-import service.AuthService;
-import service.UserService;
+import com.google.gson.JsonObject;
+import dataaccess.DataAccessException;
 import spark.*;
 
-public class LogoutUserHandler {
-    private LogoutRequest logoutRequest;
-    private AuthService authService;
-    private UserService userService;
+public class LogoutUserHandler extends Handler{
+    LogoutRequest logoutRequest;
 
-    public LogoutUserHandler(Request request, AuthService authService, UserService userService) {
-        this.authService = authService;
-        this.userService = userService;
-        Gson gson = new Gson();
+    public LogoutUserHandler(Request request) {
         this.logoutRequest = new LogoutRequest(request.headers("authorization"));
     }
 
-    public void logout(LogoutRequest request, AuthService authService) {
+    public String logout() throws DataAccessException {
+        try {
+            userService.logoutUser(logoutRequest);
+            return gson.toJson(new JsonObject());
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
 
     }
 }

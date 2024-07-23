@@ -1,9 +1,6 @@
 package handlers;
 import RequestsResults.RegisterRequest;
-import RequestsResults.RegisterResult;
-import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
-import model.AuthData;
 import spark.*;
 
 

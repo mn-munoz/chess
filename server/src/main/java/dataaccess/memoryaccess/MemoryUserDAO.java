@@ -3,7 +3,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import RequestsResults.RegisterRequest;
-import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 
