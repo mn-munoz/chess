@@ -1,6 +1,8 @@
 package service;
 
 import org.junit.jupiter.api.*;
+import requestsresults.LoginRequest;
+import requestsresults.LoginResult;
 import requestsresults.RegisterRequest;
 import requestsresults.RegisterResult;
 import dataaccess.DataAccessException;
@@ -44,7 +46,7 @@ public class ServiceTests {
         // User already taken
 
     @Test
-    public void UserAlreadyTaken() throws DataAccessException {
+    public void userAlreadyTaken() throws DataAccessException {
         RegisterRequest request = new RegisterRequest("user", "123", "asd@gmail.com");
         userService.registerUser(request);
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
@@ -54,6 +56,17 @@ public class ServiceTests {
     }
 
         // Successful Login
+
+    @Test
+    public void successfulLogin() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        userService.registerUser(existingUser);
+        LoginRequest request = new LoginRequest("user", "123");
+        LoginResult result = userService.loginUser(request);
+
+        assertNotNull(result);
+        assertEquals("user", Service.AUTH_DAO.getAuth(result.authToken()).username());
+    }
 
         // wrong password
 
