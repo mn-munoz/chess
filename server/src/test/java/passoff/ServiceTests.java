@@ -7,7 +7,7 @@ import service.AuthService;
 public class ServiceTests {
 
     @Test
-    public void AuthClearTest() {
+    public void authClearTest() {
         AuthService authService = new AuthService();
     }
 
