@@ -113,9 +113,7 @@ public class ServiceTests {
         String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
 
         LogoutRequest request = new LogoutRequest(authToken);
-        assertDoesNotThrow(() -> {
-            userService.logoutUser(request);
-        }, "Error: unauthorized");
+        assertDoesNotThrow(() -> userService.logoutUser(request), "Error: unauthorized");
     }
 
     // Game Service test
