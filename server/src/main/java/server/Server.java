@@ -1,6 +1,6 @@
 package server;
 
-import RequestsResults.ErrorResult;
+import requestsResults.ErrorResult;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import handlers.*;

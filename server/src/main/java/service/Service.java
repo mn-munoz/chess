@@ -8,15 +8,15 @@ import model.AuthData;
 
 
 public abstract class Service {
-    protected static final MemoryAuthDAO authDAO = new MemoryAuthDAO();
-    protected static final MemoryUserDAO userDAO = new MemoryUserDAO();
-    protected static final MemoryGameDAO gameDAO = new MemoryGameDAO();
+    protected static final MemoryAuthDAO AUTH_DAO = new MemoryAuthDAO();
+    protected static final MemoryUserDAO USER_DAO = new MemoryUserDAO();
+    protected static final MemoryGameDAO GAME_DAO = new MemoryGameDAO();
 
     public abstract void clear();
 
     public AuthData validateToken(String auth) throws DataAccessException {
         try {
-            return authDAO.getAuth(auth);
+            return AUTH_DAO.getAuth(auth);
         } catch (DataAccessException e) {
             throw new DataAccessException("unauthorized");
         }

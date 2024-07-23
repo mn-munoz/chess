@@ -1,6 +1,6 @@
 package dataaccess;
 
-import RequestsResults.CreateGameRequest;
+import requestsResults.CreateGameRequest;
 import model.GameData;
 import model.GameSummary;
 

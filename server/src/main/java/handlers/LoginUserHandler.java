@@ -1,6 +1,6 @@
 package handlers;
 
-import RequestsResults.LoginRequest;
+import requestsResults.LoginRequest;
 import dataaccess.DataAccessException;
 import spark.*;
 

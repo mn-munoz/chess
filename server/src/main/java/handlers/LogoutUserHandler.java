@@ -1,6 +1,6 @@
 package handlers;
 
-import RequestsResults.LogoutRequest;
+import requestsResults.LogoutRequest;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import spark.*;

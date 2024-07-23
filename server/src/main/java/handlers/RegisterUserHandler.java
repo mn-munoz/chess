@@ -1,5 +1,5 @@
 package handlers;
-import RequestsResults.RegisterRequest;
+import requestsResults.RegisterRequest;
 import dataaccess.DataAccessException;
 import spark.*;
 

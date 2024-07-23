@@ -2,7 +2,7 @@ package dataaccess.memoryaccess;
 import java.util.HashMap;
 import java.util.Map;
 
-import RequestsResults.RegisterRequest;
+import requestsResults.RegisterRequest;
 import dataaccess.UserDAO;
 import model.UserData;
 

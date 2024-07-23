@@ -1,13 +1,13 @@
 package service;
 
-import RequestsResults.*;
+import requestsResults.*;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
 public class UserService extends Service{
     public void clear() {
-        userDAO.clear();
+        USER_DAO.clear();
     }
 
     public RegisterResult registerUser(RegisterRequest request) throws DataAccessException {
@@ -15,11 +15,11 @@ public class UserService extends Service{
             throw new DataAccessException("Error: bad request");
         }
 
-        if (userDAO.getUser(request.username()) != null) {
+        if (USER_DAO.getUser(request.username()) != null) {
             throw new DataAccessException("Error: already taken");
         }
-        userDAO.addUser(request);
-        AuthData newAuth = authDAO.createAuth(request.username());
+        USER_DAO.addUser(request);
+        AuthData newAuth = AUTH_DAO.createAuth(request.username());
         return new RegisterResult(request.username(), newAuth.authToken());
     }
 
@@ -28,19 +28,19 @@ public class UserService extends Service{
     }
 
     public LoginResult loginUser(LoginRequest request) throws DataAccessException {
-        UserData user = userDAO.getUser(request.username());
+        UserData user = USER_DAO.getUser(request.username());
         if (user == null || !(user.password().equals(request.password())) ) {
             throw new DataAccessException("Error: unauthorized");
         }
 
-        AuthData authData = authDAO.createAuth(request.username());
+        AuthData authData = AUTH_DAO.createAuth(request.username());
         return new LoginResult(request.username(), authData.authToken());
     }
 
     public void logoutUser(LogoutRequest request) throws DataAccessException {
         try {
             AuthData tokenToDelete = validateToken(request.authToken());
-            authDAO.deleteAuth(tokenToDelete.authToken());
+            AUTH_DAO.deleteAuth(tokenToDelete.authToken());
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }

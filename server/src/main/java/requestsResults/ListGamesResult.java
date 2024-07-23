@@ -1,4 +1,4 @@
-package RequestsResults;
+package requestsResults;
 
 import java.util.Collection;
 

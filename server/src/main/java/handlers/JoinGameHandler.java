@@ -1,6 +1,6 @@
 package handlers;
 
-import RequestsResults.JoinGameRequest;
+import requestsResults.JoinGameRequest;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import spark.Request;

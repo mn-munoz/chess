@@ -1,6 +1,6 @@
 package handlers;
 
-import RequestsResults.CreateGameRequest;
+import requestsResults.CreateGameRequest;
 import dataaccess.DataAccessException;
 import spark.Request;
 

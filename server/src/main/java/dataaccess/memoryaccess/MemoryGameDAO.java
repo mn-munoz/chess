@@ -1,6 +1,6 @@
 package dataaccess.memoryaccess;
 
-import RequestsResults.CreateGameRequest;
+import requestsResults.CreateGameRequest;
 import chess.ChessGame;
 import dataaccess.GameDAO;
 import model.GameData;

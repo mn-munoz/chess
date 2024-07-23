@@ -1,6 +1,6 @@
 package service;
 
-import RequestsResults.*;
+import requestsResults.*;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
@@ -8,14 +8,14 @@ import model.GameData;
 public class GameService extends Service{
 
     public void clear() {
-        gameDAO.clear();
+        GAME_DAO.clear();
     }
 
     public ListGamesResult listGames(ListGamesRequest request) throws DataAccessException {
         try {
             validateToken(request.authToken());
 
-            return new ListGamesResult(gameDAO.listGames());
+            return new ListGamesResult(GAME_DAO.listGames());
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -29,7 +29,7 @@ public class GameService extends Service{
                 throw new DataAccessException("bad request");
             }
 
-            GameData newGame = gameDAO.createGame(request);
+            GameData newGame = GAME_DAO.createGame(request);
             return new CreateGameResult(newGame.gameID());
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
@@ -40,14 +40,14 @@ public class GameService extends Service{
     public void joinGame(JoinGameRequest request) throws DataAccessException {
         try {
             AuthData data = validateToken(request.authToken());
-            GameData game = gameDAO.getGame(request.gameID());
+            GameData game = GAME_DAO.getGame(request.gameID());
             if (request.playerColor() == null || game == null || !isValidColor(request.playerColor())) {
                 throw new DataAccessException("bad request");
             }
 
             GameData newGame = getGameData(request, game, data);
 
-            gameDAO.updateGame(request.gameID(), newGame);
+            GAME_DAO.updateGame(request.gameID(), newGame);
 
         } catch (DataAccessException e) {
             throw new DataAccessException(e.getMessage());
