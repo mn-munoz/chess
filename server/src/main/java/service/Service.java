@@ -18,7 +18,7 @@ public abstract class Service {
         try {
             return AUTH_DAO.getAuth(auth);
         } catch (DataAccessException e) {
-            throw new DataAccessException("unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
     }
 }

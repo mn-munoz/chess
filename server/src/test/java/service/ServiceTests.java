@@ -1,10 +1,7 @@
 package service;
 
 import org.junit.jupiter.api.*;
-import requestsresults.LoginRequest;
-import requestsresults.LoginResult;
-import requestsresults.RegisterRequest;
-import requestsresults.RegisterResult;
+import requestsresults.*;
 import dataaccess.DataAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,11 +66,42 @@ public class ServiceTests {
     }
 
         // wrong password
+    @Test
+    public void wrongPasswordLogin() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        userService.registerUser(existingUser);
+        LoginRequest request = new LoginRequest("user", "1234");
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                userService.loginUser(request));
+
+        assertNotNull(exception);
+        assertEquals("Error: unauthorized", exception.getMessage());
+
+    }
 
         // non existent user
+    @Test
+    public void loginNonExistentUser() {
+        LoginRequest request = new LoginRequest("user", "123");
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                userService.loginUser(request));
 
+        assertNotNull(exception);
+        assertEquals("Error: unauthorized", exception.getMessage());
+
+    }
         // not authorized user
 
+    @Test
+    public void unauthorizedUserLogout() {
+        LogoutRequest request = new LogoutRequest(null);
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                userService.logoutUser(request));
+
+        assertNotNull(exception);
+        assertEquals("Error: unauthorized", exception.getMessage());
+    }
         // successful logout
 
     // Game Service test
