@@ -1,9 +1,12 @@
 package service;
 
 import RequestsResults.LoginRequest;
+import RequestsResults.LoginResult;
 import RequestsResults.RegisterRequest;
+import RequestsResults.RegisterResult;
 import dataaccess.DataAccessException;
 import dataaccess.memoryaccess.MemoryUserDAO;
+import model.AuthData;
 import model.UserData;
 
 public class UserService extends Service{
@@ -11,19 +14,32 @@ public class UserService extends Service{
         userDAO.clear();
     }
 
-    public void registerUser(RegisterRequest request) throws DataAccessException {
+    public RegisterResult registerUser(RegisterRequest request) throws DataAccessException {
+        if (!isValidRequest(request)) {
+            throw new DataAccessException("Error: bad request");
+        }
+
         if (userDAO.getUser(request.username()) != null) {
             throw new DataAccessException("Error: already taken");
         }
-        userDAO.createUser(request);
+        userDAO.addUser(request);
+        AuthData newAuth = authDAO.createAuth(request.username());
+        return new RegisterResult(request.username(), newAuth.authToken());
     }
 
-    public void loginUser(LoginRequest request) throws DataAccessException {
+    private boolean isValidRequest(RegisterRequest request) {
+        return request.username() != null && request.password() != null && request.email() != null;
+    }
+
+    public LoginResult loginUser(LoginRequest request) throws DataAccessException {
         UserData user = userDAO.getUser(request.username());
         if (user == null || !(user.password().equals(request.password())) ) {
             throw new DataAccessException("Error: unauthorized");
         }
 
+        AuthData authData = authDAO.createAuth(request.username());
+        return new LoginResult(request.username(), authData.authToken());
     }
+
 
 }

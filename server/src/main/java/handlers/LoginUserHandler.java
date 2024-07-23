@@ -5,31 +5,21 @@ import RequestsResults.LoginResult;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
-import service.AuthService;
-import service.UserService;
+import spark.*;
 
-public class LoginUserHandler {
-    private final LoginRequest request;
-    private final AuthService authService;
-    private final UserService userService;
+public class LoginUserHandler extends Handler{
+    LoginRequest loginRequest;
 
-    public LoginUserHandler(String request,UserService userService, AuthService authService) {
-        this.userService = userService;
-        this.authService = authService;
-        Gson gson = new Gson();
-        this.request = gson.fromJson(request, LoginRequest.class);
+    public LoginUserHandler(Request request) {
+        this.loginRequest = gson.fromJson(request.body(), LoginRequest.class);
     }
 
-    public LoginResult login() {
+    public String login() throws DataAccessException {
         try {
-            Gson gson = new Gson();
-            userService.loginUser(request);
-            AuthData newAuth = authService.createAuth(request.username());
-            return new LoginResult(newAuth.username(), newAuth.authToken());
-
+            return gson.toJson(userService.loginUser(loginRequest));
         }
         catch (DataAccessException e) {
-            return new LoginResult(e.getMessage());
+            throw new DataAccessException(e.getMessage());
         }
     }
 }

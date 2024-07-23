@@ -1,33 +1,25 @@
 package handlers;
-
 import RequestsResults.RegisterRequest;
 import RequestsResults.RegisterResult;
-import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import model.AuthData;
-import service.AuthService;
-import service.UserService;
+import spark.*;
 
-public class RegisterUserHandler {
-    private final RegisterRequest request;
-    private final AuthService authService;
-    private final UserService userService;
 
-    public RegisterUserHandler(String request,UserService userService, AuthService authService) {
-        this.userService = userService;
-        this.authService = authService;
-        Gson gson = new Gson();
-        this.request = gson.fromJson(request, RegisterRequest.class);
+public class RegisterUserHandler extends Handler{
+    private final RegisterRequest registerRequest;
+
+    public RegisterUserHandler(Request request) {
+        this.registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
     }
 
-    public RegisterResult register() {
+    public String register() throws DataAccessException {
         try {
-            userService.registerUser(request);
-            AuthData newToken = authService.createAuth(request.username());
-            return new RegisterResult(request.username(), newToken.authToken());
+            return gson.toJson(userService.registerUser(registerRequest));
         }
         catch (DataAccessException e) {
-            return new RegisterResult(e.getMessage());
+            throw new DataAccessException(e.getMessage());
         }
     }
 

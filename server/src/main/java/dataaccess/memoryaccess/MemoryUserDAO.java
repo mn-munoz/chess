@@ -14,7 +14,7 @@ public class MemoryUserDAO implements UserDAO {
         usersMap.clear();
     }
 
-    public void createUser(RegisterRequest request){
+    public void addUser(RegisterRequest request){
             usersMap.put(request.username(), new UserData(request.username(), request.password(), request.email()));
     }
 
