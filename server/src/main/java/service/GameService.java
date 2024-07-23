@@ -63,16 +63,14 @@ public class GameService extends Service{
         System.out.println("Step 1");
         GameData newGame = game;
 
-        if (request.playerColor().equals("WHITE")) {
-            System.out.println("WHITE");
+        if (request.playerColor().equalsIgnoreCase("WHITE")) {
             if (game.whiteUsername() != null) {
                 throw new DataAccessException("already taken");
             }
             newGame = new GameData(game.gameID(), data.username(), game.blackUsername(), game.gameName(), game.game());
         }
 
-        else if (request.playerColor().equals("BLACK")) {
-            System.out.println("BLACK");
+        else if (request.playerColor().equalsIgnoreCase("BLACK")) {
             if (game.blackUsername() != null) {
                 throw new DataAccessException("already taken");
             }
