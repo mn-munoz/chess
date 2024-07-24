@@ -1,5 +1,7 @@
 package service;
 
+import dataaccess.memoryaccess.MemoryAuthDAO;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import requestsresults.*;
 import dataaccess.DataAccessException;
@@ -8,15 +10,64 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
     private final UserService userService = new UserService();
-    private final GameService gameService = new GameService();
+    private GameService gameService = new GameService();
+    private final AuthService authService = new AuthService();
 
-    // User Service Tests
+    // Auth Service Tests
 
+    @BeforeEach
+    public void setUp() {
+        cleanServices();
+    }
 
     @AfterEach
     public void cleanServices() {
         userService.clear();
-        gameService.clear();
+        gameService = new GameService();
+        authService.clear();
+    }
+
+    @Test
+    public void testAuthClear() throws DataAccessException {
+        // Add some auth data to the authMap
+
+        MemoryAuthDAO memoryAuthDAO;
+        AuthData authData1 = Service.AUTH_DAO.createAuth("user1");
+        AuthData authData2 = Service.AUTH_DAO.createAuth("user2");
+
+        // Ensure that authMap contains the added auth data
+        assertNotNull(Service.AUTH_DAO.getAuth(authData1.authToken()));
+        assertNotNull(Service.AUTH_DAO.getAuth(authData2.authToken()));
+
+        // Clear the authMap
+        authService.clear();
+
+        // Ensure that authMap is empty
+        assertThrows(DataAccessException.class, () -> Service.AUTH_DAO.getAuth(authData1.authToken()));
+        assertThrows(DataAccessException.class, () -> Service.AUTH_DAO.getAuth(authData2.authToken()));
+    }
+
+    // User Service Tests
+
+        // Clear
+
+    @Test
+    public void testUserClear() throws DataAccessException {
+        // Add some user data to the authMap
+        RegisterRequest newUser =
+                new RegisterRequest("user", "12345", "user@gmail.com");
+        userService.registerUser(newUser);
+        LoginRequest request = new LoginRequest("user", "12345");
+
+
+        // Ensure that userMap contains the added auth data
+        assertNotNull(Service.USER_DAO.getUser(newUser.username()));
+
+        // Clear the userMap
+        userService.clear();
+
+        // Ensure that authMap is empty
+        assertThrows(DataAccessException.class, () -> userService.loginUser(request));
     }
 
     @Test
@@ -118,6 +169,28 @@ public class ServiceTests {
 
     // Game Service test
 
+    // Clear
+
+    @Test
+    public void testGameClear() throws DataAccessException {
+        // Add some game data to the authMap
+        RegisterRequest newUser =
+                new RegisterRequest("user", "12345", "user@gmail.com");
+        RegisterResult newUserResult = userService.registerUser(newUser);
+        CreateGameRequest newGame = new CreateGameRequest(newUserResult.authToken(), "NewGame");
+        CreateGameResult newGameResult = gameService.createGame(newGame);
+        JoinGameRequest request = new JoinGameRequest(newUserResult.authToken(), "WHITE", newGameResult.gameID());
+
+        // Ensure that gameMap contains the added game data
+        assertNotNull(Service.GAME_DAO.getGame(newGameResult.gameID()));
+
+        // Clear the gameMap
+        gameService.clear();
+
+        // Ensure that authMap is empty
+        assertThrows(DataAccessException.class, () -> gameService.joinGame(request));
+    }
+
         // Not authorized to list games
 
     @Test
@@ -189,17 +262,133 @@ public class ServiceTests {
 
         // missing player color in request
 
+    @Test
+    public void nullPlayerColor() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+        gameService. createGame(createGame);
+
+        JoinGameRequest request = new JoinGameRequest(authToken, null, 1000);
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(request));
+
+        assertEquals("Error: bad request", exception.getMessage());
+    }
+
         // No game with id given
+
+    @Test
+    public void joinInvalidId() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame2");
+        gameService. createGame(createGame);
+
+        JoinGameRequest request = new JoinGameRequest(authToken, "WHITE", 1100);
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(request));
+
+        assertEquals("Error: bad request", exception.getMessage());
+    }
 
         // player color is not correct
 
+    @Test
+    public void joinInvalidColor() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+        gameService. createGame(createGame);
+
+        JoinGameRequest request = new JoinGameRequest(authToken, "BLUE", 1000);
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(request));
+
+        assertEquals("Error: bad request", exception.getMessage());
+    }
+
         // White user is NOT taken
+
+    @Test
+    public void successfulJoinAsWhite() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+        CreateGameResult result = gameService. createGame(createGame);
+        JoinGameRequest request = new JoinGameRequest(authToken, "WHITE", result.gameID());
+
+        assertDoesNotThrow(() -> gameService.joinGame(request), "Error: already taken");
+    }
 
         // White User IS taken
 
+    @Test
+    public void WhiteIsTaken() throws DataAccessException {
+        RegisterRequest existingUserOne = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResultOne = userService.registerUser(existingUserOne);
+        String authToken = Service.AUTH_DAO.getAuth(regResultOne.authToken()).authToken();
+
+        RegisterRequest existingUserTwo = new RegisterRequest("testing", "123", "jkl@gmail.com");
+        userService.registerUser(existingUserTwo);
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+        gameService. createGame(createGame);
+        JoinGameRequest addToWhite = new JoinGameRequest(authToken, "WHITE", 1000);
+        gameService.joinGame(addToWhite);
+        JoinGameRequest request = new JoinGameRequest(authToken, "WHITE", 1000);
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameService.joinGame(request));
+
+        assertEquals("Error: already taken", exception.getMessage());
+    }
+
         // Black user is NOT taken
 
+    @Test
+    public void successfulJoinAsBlack() throws DataAccessException {
+        RegisterRequest existingUser = new RegisterRequest("user", "123", "asd@gmail.com");
+        RegisterResult regResult = userService.registerUser(existingUser);
+        String authToken = Service.AUTH_DAO.getAuth(regResult.authToken()).authToken();
+
+        CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+        CreateGameResult result = gameService. createGame(createGame);
+        JoinGameRequest request = new JoinGameRequest(authToken, "BLACK", result.gameID());
+
+        assertDoesNotThrow(() -> gameService.joinGame(request), "Error: already taken");
+    }
+
         // Black user IS taken
+
+    @Test
+        public void BlackIsTaken() throws DataAccessException {
+            RegisterRequest existingUserOne = new RegisterRequest("user", "123", "asd@gmail.com");
+            RegisterResult regResultOne = userService.registerUser(existingUserOne);
+            String authToken = Service.AUTH_DAO.getAuth(regResultOne.authToken()).authToken();
+
+            RegisterRequest existingUserTwo = new RegisterRequest("testing", "123", "jkl@gmail.com");
+            userService.registerUser(existingUserTwo);
+
+            CreateGameRequest createGame = new CreateGameRequest(authToken, "HelloGame");
+            gameService. createGame(createGame);
+            JoinGameRequest addToWhite = new JoinGameRequest(authToken, "BLACK", 1000);
+            gameService.joinGame(addToWhite);
+            JoinGameRequest request = new JoinGameRequest(authToken, "BLACK", 1000);
+
+            DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                    gameService.joinGame(request));
+
+            assertEquals("Error: already taken", exception.getMessage());
+        }
 
 
 

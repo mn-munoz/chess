@@ -60,12 +60,11 @@ public class GameService extends Service{
 
     private GameData getGameData(JoinGameRequest request, GameData game, AuthData data) throws DataAccessException {
 
-        System.out.println("Step 1");
         GameData newGame = game;
 
         if (request.playerColor().equalsIgnoreCase("WHITE")) {
             if (game.whiteUsername() != null) {
-                throw new DataAccessException("already taken");
+                throw new DataAccessException("Error: already taken");
             }
             newGame = new GameData(game.gameID(), data.username(), game.blackUsername(), game.gameName(), game.game());
         }
