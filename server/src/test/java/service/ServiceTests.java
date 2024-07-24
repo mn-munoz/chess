@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.memoryaccess.MemoryAuthDAO;
 import model.AuthData;
 import org.junit.jupiter.api.*;
 import requestsresults.*;
@@ -31,7 +30,6 @@ public class ServiceTests {
     public void testAuthClear() throws DataAccessException {
         // Add some auth data to the authMap
 
-        MemoryAuthDAO memoryAuthDAO;
         AuthData authData1 = Service.AUTH_DAO.createAuth("user1");
         AuthData authData2 = Service.AUTH_DAO.createAuth("user2");
 
@@ -332,7 +330,7 @@ public class ServiceTests {
         // White User IS taken
 
     @Test
-    public void WhiteIsTaken() throws DataAccessException {
+    public void whiteIsTaken() throws DataAccessException {
         RegisterRequest existingUserOne = new RegisterRequest("user", "123", "asd@gmail.com");
         RegisterResult regResultOne = userService.registerUser(existingUserOne);
         String authToken = Service.AUTH_DAO.getAuth(regResultOne.authToken()).authToken();
@@ -370,7 +368,7 @@ public class ServiceTests {
         // Black user IS taken
 
     @Test
-        public void BlackIsTaken() throws DataAccessException {
+        public void blackIsTaken() throws DataAccessException {
             RegisterRequest existingUserOne = new RegisterRequest("user", "123", "asd@gmail.com");
             RegisterResult regResultOne = userService.registerUser(existingUserOne);
             String authToken = Service.AUTH_DAO.getAuth(regResultOne.authToken()).authToken();
