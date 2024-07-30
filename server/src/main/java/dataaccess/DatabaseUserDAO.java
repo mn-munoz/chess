@@ -32,6 +32,9 @@ public class DatabaseUserDAO extends DatabaseConnection implements UserDAO{
     public void addUser(RegisterRequest request) throws DataAccessException {
         Gson gson = new Gson();
         String username = request.username();
+        if (request.username() == null || request.password() == null || request.email() == null) {
+            throw new DataAccessException("Error: invalid request format");
+        }
         String userData = gson.toJson(request);
 
         String statement = "INSERT INTO users_table (username, userData) VALUES (?, ?)";
