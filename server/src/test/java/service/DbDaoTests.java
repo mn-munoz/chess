@@ -1,20 +1,19 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseAuthDAO;
-import dataaccess.DatabaseGameDAO;
-import dataaccess.DatabaseUserDAO;
+import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import requestsresults.CreateGameRequest;
 import requestsresults.RegisterRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DbDaoTests {
 
-    @AfterAll
+    @BeforeAll
     public static void setUp() throws DataAccessException {
         DatabaseUserDAO userDAO = new DatabaseUserDAO();
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
@@ -128,5 +127,61 @@ public class DbDaoTests {
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
 
         assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("thisIsNotValidToken"));
+    }
+
+    @Test
+    public void successfulCreateGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("createGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("createGameTest");
+
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "testGame");
+
+        assertDoesNotThrow(() -> gameDAO.createGame(gameRequest));
+    }
+
+    @Test
+    public void failedCreateGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("createFailedGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("createFailedGameTest");
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), null);
+
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(gameRequest));
+    }
+
+    @Test
+    public void successfulGetGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("getGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("getGameTest");
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "getGame");
+        GameData game = gameDAO.createGame(gameRequest);
+
+        assertNotNull((gameDAO.getGame(game.gameID())));
+        assertDoesNotThrow(()-> gameDAO.getGame(game.gameID()));
+    }
+
+    @Test
+    public void failedGetGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("getGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("getGameTest");
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "getGame");
+        gameDAO.createGame(gameRequest);
+
+        assertNull((gameDAO.getGame(9999)));
     }
 }
