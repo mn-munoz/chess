@@ -101,7 +101,7 @@ public class DbDaoTests {
     public void failedGetAuth() throws DataAccessException {
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
 
-        assertNull(authDAO.getAuth("thisIsNotValidToken"));
+        assertThrows(DataAccessException.class, () -> authDAO.getAuth("thisIsNotValidToken"));
     }
 
     @Test

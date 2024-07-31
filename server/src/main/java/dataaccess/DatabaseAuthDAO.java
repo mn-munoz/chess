@@ -43,7 +43,7 @@ public class DatabaseAuthDAO extends DatabaseConnection implements AuthDAO {
                     String username = rs.getString("username");
                     return new AuthData(authToken, username);
                 } else {
-                    return null;
+                    throw new DataAccessException("Authorization token not found");
                 }
             }
         } catch (SQLException e) {
