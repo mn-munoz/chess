@@ -13,7 +13,7 @@ public interface GameDAO {
 
     Collection<GameSummary> listGames() throws DataAccessException;
 
-    void updateGame(int gameID, GameData game);
+    void updateGame(int gameID, GameData game) throws DataAccessException;
 
     void clear() throws DataAccessException;
 }

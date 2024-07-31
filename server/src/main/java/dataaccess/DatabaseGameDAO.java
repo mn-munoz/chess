@@ -9,7 +9,6 @@ import requestsresults.CreateGameRequest;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
@@ -96,8 +95,23 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
     }
 
     @Override
-    public void updateGame(int gameID, GameData game) {
+    public void updateGame(int gameID, GameData game) throws DataAccessException {
+        String statement = "UPDATE games_table SET chessGame = ? WHERE gameID = ?";
+        Gson gson = new Gson();
 
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gson.toJson(game.game()));
+                ps.setInt(2, gameID);
+
+                int affectedRows = ps.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new DataAccessException("Error: Could not find ID " + gameID);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
     }
 
     @Override

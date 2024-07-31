@@ -190,4 +190,37 @@ public class DataAccessTests {
 
         assertDoesNotThrow(gameDAO::listGames);
     }
+
+    @Test
+    public void successfulUpdateGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("updateGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("updateGameTest");
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "updateGame");
+        GameData game = gameDAO.createGame(gameRequest);
+        GameData newGame = new GameData(game.gameID(), "updateGameTest", null, game.gameName(), game.game());
+
+        assertDoesNotThrow(()-> gameDAO.updateGame(game.gameID(), newGame));
+    }
+
+    @Test
+    public void notValidIdUpdateGame() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("updateGameTest",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("updateGameTest");
+        CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "updateGame");
+        GameData game = gameDAO.createGame(gameRequest);
+        GameData newGame = new GameData(game.gameID(), "updateGameTest", null, game.gameName(), game.game());
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () ->
+                gameDAO.updateGame(10000, newGame));
+
+        assertEquals("Error: Could not find ID " + 10000, exception.getMessage());
+    }
 }
