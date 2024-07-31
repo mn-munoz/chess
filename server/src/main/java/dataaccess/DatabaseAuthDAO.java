@@ -32,7 +32,7 @@ public class DatabaseAuthDAO extends DatabaseConnection implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        String statement = "SELECT username FROM auth_table WHERE authtoken = ?";
+        String statement = "SELECT username FROM auth_table WHERE authToken = ?";
 
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(statement)) {
@@ -52,7 +52,19 @@ public class DatabaseAuthDAO extends DatabaseConnection implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String token) {
+    public void deleteAuth(String token) throws DataAccessException {
+        String statement = "DELETE FROM auth_table WHERE authToken = ?";
+
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, token);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DataAccessException("Error: couldn't find token");
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
 
     }
 

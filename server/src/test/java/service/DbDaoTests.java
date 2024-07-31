@@ -103,4 +103,24 @@ public class DbDaoTests {
 
         assertNull(authDAO.getAuth("thisIsNotValidToken"));
     }
+
+    @Test
+    public void successfulDeleteAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("anotherTestUser",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("anotherTestUser");
+        String token = authData.authToken();
+
+        assertDoesNotThrow(() -> authDAO.deleteAuth(token));
+
+    }
+
+    @Test
+    public void failedDeleteAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+
+        assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("thisIsNotValidToken"));
+    }
 }

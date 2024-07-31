@@ -19,9 +19,9 @@ public class DatabaseConnection {
     """,
     """
     CREATE TABLE IF NOT EXISTS auth_table (
-    `authtoken` varchar(100) NOT NULL,
+    `authToken` varchar(100) NOT NULL,
     `username` varchar(256) NOT NULL,
-    PRIMARY KEY (`authtoken`),
+    PRIMARY KEY (`authToken`),
     FOREIGN KEY (`username`) REFERENCES users_table(`username`)
     ON UPDATE CASCADE
     ON DELETE CASCADE
