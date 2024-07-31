@@ -7,12 +7,11 @@ import requestsresults.RegisterRequest;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseUserDAO extends DatabaseConnection implements UserDAO{
+public class DatabaseUserDAO extends DatabaseConnection implements UserDAO {
 
     public DatabaseUserDAO() throws DataAccessException{
         super();
     }
-
 
     @Override
     public void clear() throws DataAccessException {
@@ -51,7 +50,24 @@ public class DatabaseUserDAO extends DatabaseConnection implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) {
-        return null;
+    public UserData getUser(String username) throws DataAccessException {
+        String statement = "SELECT userData FROM users_table WHERE username = ?";
+        Gson gson = new Gson();
+
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, username);
+
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String userDataJson = rs.getString("userData");
+                    return gson.fromJson(userDataJson, UserData.class);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
     }
 }

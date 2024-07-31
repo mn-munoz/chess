@@ -6,7 +6,7 @@ import model.AuthData;
 import model.UserData;
 
 public class UserService extends Service{
-    public void clear() {
+    public void clear() throws DataAccessException {
         USER_DAO.clear();
     }
 

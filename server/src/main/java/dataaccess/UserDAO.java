@@ -8,5 +8,5 @@ public interface UserDAO {
 
     void addUser(RegisterRequest request) throws DataAccessException;
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 }

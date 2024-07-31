@@ -1,18 +1,26 @@
 package service;
 
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import dataaccess.memoryaccess.MemoryAuthDAO;
 import dataaccess.memoryaccess.MemoryGameDAO;
-import dataaccess.memoryaccess.MemoryUserDAO;
 import model.AuthData;
 
 
 public abstract class Service {
-    protected static final MemoryAuthDAO AUTH_DAO = new MemoryAuthDAO();
-    protected static final MemoryUserDAO USER_DAO = new MemoryUserDAO();
-    protected static final MemoryGameDAO GAME_DAO = new MemoryGameDAO();
+    protected static final AuthDAO AUTH_DAO = new MemoryAuthDAO();
+    protected static final UserDAO USER_DAO;
 
-    public abstract void clear();
+    static {
+        try {
+            USER_DAO = new DatabaseUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected static final GameDAO GAME_DAO = new MemoryGameDAO();
+
+    public abstract void clear() throws DataAccessException;
 
     public AuthData validateToken(String auth) throws DataAccessException {
         try {

@@ -15,12 +15,12 @@ public class ServiceTests {
     // Auth Service Tests
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws DataAccessException {
         cleanServices();
     }
 
     @AfterEach
-    public void cleanServices() {
+    public void cleanServices() throws DataAccessException {
         userService.clear();
         gameService = new GameService();
         authService.clear();
