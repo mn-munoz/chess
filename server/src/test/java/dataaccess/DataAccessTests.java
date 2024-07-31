@@ -210,13 +210,13 @@ public class DataAccessTests {
     public void notValidIdUpdateGame() throws DataAccessException {
         DatabaseGameDAO gameDAO = new DatabaseGameDAO();
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
-        RegisterRequest request = new RegisterRequest("updateGameTest",  "1234", "b@a.com");
+        RegisterRequest request = new RegisterRequest("updateFailedGameTest",  "1234", "b@a.com");
         DatabaseUserDAO userDAO = new DatabaseUserDAO();
         userDAO.addUser(request);
-        AuthData authData = authDAO.createAuth("updateGameTest");
+        AuthData authData = authDAO.createAuth("updateFailedGameTest");
         CreateGameRequest gameRequest = new CreateGameRequest(authData.authToken(), "updateGame");
         GameData game = gameDAO.createGame(gameRequest);
-        GameData newGame = new GameData(game.gameID(), "updateGameTest", null, game.gameName(), game.game());
+        GameData newGame = new GameData(game.gameID(), "updateFailedGameTest", null, game.gameName(), game.game());
 
         DataAccessException exception = assertThrows(DataAccessException.class, () ->
                 gameDAO.updateGame(10000, newGame));

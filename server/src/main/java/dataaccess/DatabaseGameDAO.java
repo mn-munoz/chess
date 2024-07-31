@@ -33,7 +33,7 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
                 try (var rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         int gameId = rs.getInt(1);
-                        return new GameData(gameId, request.gameName(), null, null, gson.fromJson(chessGameJson, ChessGame.class));
+                        return new GameData(gameId, null, null, request.gameName(), gson.fromJson(chessGameJson, ChessGame.class));
                     } else {
                         throw new DataAccessException("Failed to retrieve the game ID");
                     }
@@ -57,7 +57,7 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
                         String whiteUsername = rs.getString("whiteUsername");
                         String blackUsername = rs.getString("blackUsername");
                         String chessGame = rs.getString("chessGame");
-                        return new GameData(gameID, gameName, whiteUsername, blackUsername, gson.fromJson(chessGame, ChessGame.class));
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, gson.fromJson(chessGame, ChessGame.class));
                     } else {
                         return null;
                     }
@@ -82,7 +82,7 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
                         String whiteUsername = rs.getString("whiteUsername");
                         String blackUsername = rs.getString("blackUsername");
 
-                        GameSummary gameSummary = new GameSummary(gameId, gameName, whiteUsername, blackUsername);
+                        GameSummary gameSummary = new GameSummary(gameId, whiteUsername, blackUsername,gameName);
                         gameSummaries.add(gameSummary);
                     }
                 }
@@ -96,13 +96,16 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
 
     @Override
     public void updateGame(int gameID, GameData game) throws DataAccessException {
-        String statement = "UPDATE games_table SET chessGame = ? WHERE gameID = ?";
+        String statement = "UPDATE games_table SET chessGame = ?, whiteUsername = ?, blackUsername = ? WHERE gameID = ?";
         Gson gson = new Gson();
 
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, gson.toJson(game.game()));
-                ps.setInt(2, gameID);
+                ps.setString(2, game.whiteUsername());
+                ps.setString(3, game.blackUsername());
+                ps.setInt(4, gameID);
+
 
                 int affectedRows = ps.executeUpdate();
                 if (affectedRows == 0) {
