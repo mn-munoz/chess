@@ -1,4 +1,4 @@
-package service;
+package java.dataaccess;
 
 import dataaccess.*;
 import model.AuthData;
