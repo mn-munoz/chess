@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseAuthDAO;
 import dataaccess.DatabaseUserDAO;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -84,5 +85,22 @@ public class DbDaoTests {
         assertThrows(DataAccessException.class, () -> authDAO.createAuth(username));
     }
 
+    @Test
+    public void successfulGetAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        RegisterRequest request = new RegisterRequest("testUser2",  "1234", "b@a.com");
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        userDAO.addUser(request);
+        AuthData authData = authDAO.createAuth("testUser2");
+        String token = authData.authToken();
 
+        assertDoesNotThrow(() -> authDAO.getAuth(token));
+    }
+
+    @Test
+    public void failedGetAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+
+        assertNull(authDAO.getAuth("thisIsNotValidToken"));
+    }
 }
