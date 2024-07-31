@@ -7,7 +7,7 @@ import model.GameData;
 
 public class GameService extends Service{
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         GAME_DAO.clear();
     }
 

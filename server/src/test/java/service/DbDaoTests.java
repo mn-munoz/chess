@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseAuthDAO;
+import dataaccess.DatabaseGameDAO;
 import dataaccess.DatabaseUserDAO;
 import model.AuthData;
 import model.UserData;
@@ -17,18 +18,23 @@ public class DbDaoTests {
     public static void setUp() throws DataAccessException {
         DatabaseUserDAO userDAO = new DatabaseUserDAO();
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
 
         userDAO.clear();
         authDAO.clear();
+        gameDAO.clear();
     }
 
     @Test
     public void clearTest() throws DataAccessException {
         DatabaseUserDAO userDAO = new DatabaseUserDAO();
         DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+
 
         assertDoesNotThrow(userDAO::clear);
         assertDoesNotThrow(authDAO::clear);
+        assertDoesNotThrow(gameDAO::clear);
     }
 
     @Test
