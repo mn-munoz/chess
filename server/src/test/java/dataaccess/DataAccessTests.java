@@ -183,4 +183,11 @@ public class DataAccessTests {
 
         assertNull((gameDAO.getGame(9999)));
     }
+
+    @Test
+    public void listGames() throws DataAccessException {
+        DatabaseGameDAO gameDAO = new DatabaseGameDAO();
+
+        assertDoesNotThrow(gameDAO::listGames);
+    }
 }

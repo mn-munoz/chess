@@ -7,6 +7,7 @@ import model.GameSummary;
 import requestsresults.CreateGameRequest;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -69,8 +70,29 @@ public class DatabaseGameDAO extends DatabaseConnection implements GameDAO {
     }
 
     @Override
-    public Collection<GameSummary> listGames() {
-        return List.of();
+    public Collection<GameSummary> listGames() throws DataAccessException{
+        String statement = "SELECT gameID, gameName, whiteUsername, blackUsername FROM games_table";
+        ArrayList<GameSummary> gameSummaries = new ArrayList<>();
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int gameId = rs.getInt("gameID");
+                        String gameName = rs.getString("gameName");
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+
+                        GameSummary gameSummary = new GameSummary(gameId, gameName, whiteUsername, blackUsername);
+                        gameSummaries.add(gameSummary);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage());
+        }
+
+        return gameSummaries;
     }
 
     @Override
