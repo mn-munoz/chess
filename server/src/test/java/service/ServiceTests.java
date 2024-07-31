@@ -29,6 +29,8 @@ public class ServiceTests {
     @Test
     public void testAuthClear() throws DataAccessException {
         // Add some auth data to the authMap
+        userService.registerUser(new RegisterRequest("user1", "cat", "a@a.com"));
+        userService.registerUser(new RegisterRequest("user2", "dog", "b@a.com"));
 
         AuthData authData1 = Service.AUTH_DAO.createAuth("user1");
         AuthData authData2 = Service.AUTH_DAO.createAuth("user2");

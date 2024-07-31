@@ -2,6 +2,7 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requestsresults.RegisterRequest;
 
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ public class DatabaseUserDAO extends DatabaseConnection implements UserDAO {
         if (request.username() == null || request.password() == null || request.email() == null) {
             throw new DataAccessException("Error: invalid request format");
         }
-        String userData = gson.toJson(request);
+        String userData = gson.toJson(new UserData(request.username(), hashPassword(request.password()), request.email()));
 
         String statement = "INSERT INTO users_table (username, userData) VALUES (?, ?)";
 
@@ -47,6 +48,10 @@ public class DatabaseUserDAO extends DatabaseConnection implements UserDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     @Override

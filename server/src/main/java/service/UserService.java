@@ -1,5 +1,6 @@
 package service;
 
+import org.mindrot.jbcrypt.BCrypt;
 import requestsresults.*;
 import dataaccess.DataAccessException;
 import model.AuthData;
@@ -29,12 +30,16 @@ public class UserService extends Service{
 
     public LoginResult loginUser(LoginRequest request) throws DataAccessException {
         UserData user = USER_DAO.getUser(request.username());
-        if (user == null || !(user.password().equals(request.password())) ) {
+        if (user == null || !verityUserPassword(request.password(), user.password()) ) {
             throw new DataAccessException("Error: unauthorized");
         }
 
         AuthData authData = AUTH_DAO.createAuth(request.username());
         return new LoginResult(request.username(), authData.authToken());
+    }
+
+    private boolean verityUserPassword(String password, String hashedPassword) {
+        return BCrypt.checkpw(password, hashedPassword);
     }
 
     public void logoutUser(LogoutRequest request) throws DataAccessException {
