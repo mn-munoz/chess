@@ -11,7 +11,7 @@ import requestsresults.RegisterRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DbDaoTests {
+public class DataAccessTests {
 
     @BeforeAll
     public static void setUp() throws DataAccessException {
