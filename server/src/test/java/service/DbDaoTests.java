@@ -1,8 +1,10 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseAuthDAO;
 import dataaccess.DatabaseUserDAO;
 import model.UserData;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import requestsresults.RegisterRequest;
 
@@ -10,11 +12,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DbDaoTests {
 
+    @AfterAll
+    public static void setUp() throws DataAccessException {
+        DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+
+        userDAO.clear();
+        authDAO.clear();
+    }
+
     @Test
     public void clearTest() throws DataAccessException {
         DatabaseUserDAO userDAO = new DatabaseUserDAO();
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
 
         assertDoesNotThrow(userDAO::clear);
+        assertDoesNotThrow(authDAO::clear);
     }
 
     @Test
@@ -53,5 +66,23 @@ public class DbDaoTests {
 
         assertNull(userDAO.getUser(username));
     }
+
+
+    @Test
+    public void successfulCreateAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        String username = "testUser";
+
+        assertDoesNotThrow(() -> authDAO.createAuth(username));
+    }
+
+    @Test
+    public void failedCreateAuth() throws DataAccessException {
+        DatabaseAuthDAO authDAO = new DatabaseAuthDAO();
+        String username = "notAUser";
+
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth(username));
+    }
+
 
 }

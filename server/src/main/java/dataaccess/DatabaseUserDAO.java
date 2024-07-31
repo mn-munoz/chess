@@ -15,7 +15,7 @@ public class DatabaseUserDAO extends DatabaseConnection implements UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        String statement = "TRUNCATE users_table";
+        String statement = "DELETE FROM users_table";
         try(var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();

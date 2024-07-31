@@ -11,11 +11,20 @@ public class DatabaseConnection {
     private final String[] createStatements = {
     """
     CREATE TABLE IF NOT EXISTS users_table (
-    `id` int NOT NULL AUTO_INCREMENT,
     `username` varchar(256) UNIQUE NOT NULL,
     `userData` JSON NOT NULL,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`username`),
     INDEX(username)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS auth_table (
+    `authtoken` varchar(100) NOT NULL,
+    `username` varchar(256) NOT NULL,
+    PRIMARY KEY (`authtoken`),
+    FOREIGN KEY (`username`) REFERENCES users_table(`username`)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
     """
     };
