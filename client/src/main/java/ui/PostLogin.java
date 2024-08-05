@@ -144,10 +144,18 @@ public class PostLogin {
     }
 
     private static String getPieceAtPosition(int row, int col) {
-        if (row == 1) return getWhitePiece(col);
-        if (row == 2) return EscapeSequences.WHITE_PAWN;
-        if (row == 7) return EscapeSequences.BLACK_PAWN;
-        if (row == 8) return getBlackPiece(col);
+        if (row == 1) {
+            return getWhitePiece(col);
+        }
+        if (row == 2) {
+            return EscapeSequences.WHITE_PAWN;
+        }
+        if (row == 7) {
+            return EscapeSequences.BLACK_PAWN;
+        }
+        if (row == 8) {
+            return getBlackPiece(col);
+        }
         return EscapeSequences.EMPTY;
     }
 
