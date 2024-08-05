@@ -1,4 +1,6 @@
 package ui;
+import requestsresults.RegisterResult;
+
 import java.util.Scanner;
 
 
@@ -6,8 +8,10 @@ import java.util.Scanner;
 public class Prelogin {
     private static final String WELCOME_PHRASE =
             "Welcome to 240 Chess! type \"help\" to get started";
+    private final ServerFacade serverFacade;
 
     public Prelogin() {
+        this.serverFacade = new ServerFacade(8000);
         preloginPhase();
     }
 
@@ -38,7 +42,9 @@ public class Prelogin {
                     String password = scanner.next();
                     String email = scanner.next();
 
-                    System.out.println(user + " " + password + " " + email);
+                    RegisterResult response = serverFacade.register(user, password, email);
+                    System.out.println(response.authToken() + " " + response.username());
+
                 } catch (Exception e) {
                     System.out.println("Error trying to register");
                 }
