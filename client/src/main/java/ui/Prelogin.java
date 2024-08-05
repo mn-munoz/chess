@@ -29,6 +29,7 @@ public class Prelogin {
         System.out.println(WELCOME_PHRASE);
 
         while (continueLoop) {
+
             System.out.print("[LOGGED OUT] >>> ");
             String input = scanner.next();
             if (input.equalsIgnoreCase("help")) {
