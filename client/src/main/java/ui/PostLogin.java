@@ -1,7 +1,9 @@
 package ui;
 
 import exception.ServerException;
+import model.GameSummary;
 import requestsresults.CreateGameResult;
+import requestsresults.ListGamesResult;
 
 import java.util.Scanner;
 
@@ -49,13 +51,40 @@ public class PostLogin {
                 }
             }
             else if (input.equalsIgnoreCase("list")) {
-                printMenu();
+                try{
+                    ListGamesResult response = serverFacade.listGames(authToken);
+
+                    for (GameSummary game: response.games()) {
+                        String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "[AVAILABLE]";
+                        String blackUser = game.blackUsername() != null ? game.blackUsername() : "[AVAILABLE]";
+
+                        System.out.println("ID: " + game.gameID() + "->" +
+                                "Game name: " + game.gameName() +
+                                " White user:" + whiteUser +
+                                " Black user: " + blackUser);
+                    }
+                } catch (ServerException e) {
+                    System.out.println("Unable to print out games available");
+                }
+
             }
             else if (input.equalsIgnoreCase("join")) {
-                printMenu();
+                try {
+                    int gameId = scanner.nextInt();
+                    String chessTeam = scanner.next();
+                    serverFacade.joinGame(authToken, gameId, chessTeam);
+                    printChessboard();
+                } catch (Exception e) {
+                    System.out.println("Unable to join game. Either game ID or team color not valid");
+                }
             }
             else if (input.equalsIgnoreCase("observe")) {
-                printMenu();
+                try {
+                    scanner.nextInt();
+                    printChessboard();
+                } catch (Exception e) {
+                    System.out.println("ID not valid. Must be a number");
+                }
             }
             else {
                 System.out.println("Invalid input");

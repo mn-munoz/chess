@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import exception.ServerException;
 import requestsresults.*;
 import ui.facaderequests.FacadeCreateGame;
+import ui.facaderequests.FacadeJoinGame;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +47,14 @@ public class ServerFacade {
         return makeRequest("POST", "/game", createGameRequest, CreateGameResult.class, authToken);
     }
 
-    public void listGames() {
-
+    public ListGamesResult listGames(String authToken) throws ServerException {
+        return makeRequest("GET", "/game", null, ListGamesResult.class, authToken);
     }
 
-    public void joinGame() {
+    public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {
+        FacadeJoinGame joinGameRequest = new FacadeJoinGame(teamColor, gameId);
 
+        makeRequest("PUT", "/game", joinGameRequest, null, authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ServerException {
