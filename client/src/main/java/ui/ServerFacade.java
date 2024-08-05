@@ -2,6 +2,8 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ServerException;
+import requestsresults.LoginRequest;
+import requestsresults.LoginResult;
 import requestsresults.RegisterRequest;
 import requestsresults.RegisterResult;
 
@@ -19,14 +21,16 @@ public class ServerFacade {
         this.baseUrl = baseUrl + port;
     }
 
-    public RegisterResult register(String user, String password, String email) throws Exception {
+    public RegisterResult register(String user, String password, String email) throws ServerException {
         RegisterRequest registerRequest = new RegisterRequest(user, password, email);
 
         return this.makeRequest("POST", "/user", registerRequest, RegisterResult.class);
     }
 
-    public void login() {
+    public LoginResult login(String username, String password) throws ServerException {
+        LoginRequest loginRequest = new LoginRequest(username, password);
 
+        return this.makeRequest("POST", "/session", loginRequest, LoginResult.class);
     }
 
     public void clear() {

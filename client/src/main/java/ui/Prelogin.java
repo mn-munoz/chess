@@ -1,4 +1,5 @@
 package ui;
+import requestsresults.LoginResult;
 import requestsresults.RegisterResult;
 
 import java.util.Scanner;
@@ -43,15 +44,22 @@ public class Prelogin {
                     String email = scanner.next();
 
                     RegisterResult response = serverFacade.register(user, password, email);
-                    System.out.println(response.authToken() + " " + response.username());
 
                 } catch (Exception e) {
                     System.out.println("Error trying to register");
                 }
             }
             else if(input.equalsIgnoreCase("login")) {
-                String user = scanner.next();
-                String password = scanner.next();
+                try {
+                    String user = scanner.next();
+                    String password = scanner.next();
+
+                    LoginResult response = serverFacade.login(user, password);
+                    System.out.println(response.authToken());
+
+                } catch (Exception e) {
+                    System.out.println("Error: Username and/or password not correct");
+                }
             }
             else {
                 System.out.println("Invalid argument. Try again");
