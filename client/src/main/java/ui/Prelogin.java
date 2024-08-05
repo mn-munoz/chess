@@ -1,5 +1,4 @@
 package ui;
-import requestsresults.LoginResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
 

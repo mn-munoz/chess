@@ -8,6 +8,7 @@ import ui.facaderequests.FacadeJoinGame;
 import ui.facaderequests.FacadeLogin;
 import ui.facaderequests.FacadeRegister;
 import ui.facaderesults.FacadeCreateGameResult;
+import ui.facaderesults.FacadeListGamesResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
 
@@ -52,8 +53,8 @@ public class ServerFacade {
         return makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
     }
 
-    public ListGamesResult listGames(String authToken) throws ServerException {
-        return makeRequest("GET", "/game", null, ListGamesResult.class, authToken);
+    public FacadeListGamesResult listGames(String authToken) throws ServerException {
+        return makeRequest("GET", "/game", null, FacadeListGamesResult.class, authToken);
     }
 
     public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {

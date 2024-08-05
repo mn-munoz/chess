@@ -2,9 +2,8 @@ package ui;
 
 import exception.ServerException;
 import model.GameSummary;
-import requestsresults.CreateGameResult;
-import requestsresults.ListGamesResult;
 import ui.facaderesults.FacadeCreateGameResult;
+import ui.facaderesults.FacadeListGamesResult;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -53,7 +52,7 @@ public class PostLogin {
             }
             else if (input.equalsIgnoreCase("list")) {
                 try{
-                    ListGamesResult response = serverFacade.listGames(authToken);
+                    FacadeListGamesResult response = serverFacade.listGames(authToken);
                     int lastKeyGiven = 1;
 
                     for (GameSummary game: response.games()) {
