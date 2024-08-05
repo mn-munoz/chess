@@ -1,12 +1,16 @@
 package ui;
 
+import exception.ServerException;
+
 import java.util.Scanner;
 
 public class PostLogin {
-    private String authToken;
+    private final String authToken;
+    ServerFacade serverFacade;
 
-    public PostLogin(String authToken) {
+    public PostLogin(String authToken, ServerFacade serverFacade) {
         this.authToken = authToken;
+        this.serverFacade = serverFacade;
         postLoggedInLoop();
     }
 
@@ -21,6 +25,14 @@ public class PostLogin {
 
             if (input.equalsIgnoreCase("quit")) {
                 continueLoop = false;
+            }
+            else if (input.equalsIgnoreCase("logout")) {
+                try {
+                    serverFacade.logout(authToken);
+                    continueLoop = false;
+                } catch (ServerException e) {
+                    System.out.println("Could not logout: " + e.getMessage());
+                }
             }
         }
 

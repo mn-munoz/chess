@@ -2,10 +2,7 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ServerException;
-import requestsresults.LoginRequest;
-import requestsresults.LoginResult;
-import requestsresults.RegisterRequest;
-import requestsresults.RegisterResult;
+import requestsresults.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,21 +21,22 @@ public class ServerFacade {
     public RegisterResult register(String user, String password, String email) throws ServerException {
         RegisterRequest registerRequest = new RegisterRequest(user, password, email);
 
-        return this.makeRequest("POST", "/user", registerRequest, RegisterResult.class);
+        return this.makeRequest("POST", "/user", registerRequest, RegisterResult.class, null);
     }
 
     public LoginResult login(String username, String password) throws ServerException {
         LoginRequest loginRequest = new LoginRequest(username, password);
 
-        return this.makeRequest("POST", "/session", loginRequest, LoginResult.class);
+        return this.makeRequest("POST", "/session", loginRequest, LoginResult.class, null);
     }
 
     public void clear() {
 
     }
 
-    public void logout() {
+    public void logout(String authToken) throws ServerException {
 
+        this.makeRequest("DELETE", "/session", null, null, authToken);
     }
 
     public void createGame() {
@@ -53,14 +51,13 @@ public class ServerFacade {
 
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ServerException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ServerException {
         try {
             URL url = (new URI(baseUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
-            writeRequest(request, http);
+            writeRequest(request, http, authToken);
             http.connect();
             if (http.getResponseCode() >= 400) {
                 throw new ServerException("Error trying to make request: " + http.getResponseCode());
@@ -71,7 +68,11 @@ public class ServerFacade {
         }
     }
 
-    private static void writeRequest(Object request, HttpURLConnection http) throws IOException {
+    private static void writeRequest(Object request, HttpURLConnection http, String authToken) throws IOException {
+        if (authToken != null) {
+            http.setRequestProperty("Authorization", authToken);
+        }
+
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String requestData = new Gson().toJson(request);
