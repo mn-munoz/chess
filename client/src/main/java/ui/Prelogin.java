@@ -44,6 +44,7 @@ public class Prelogin {
                     String email = scanner.next();
 
                     RegisterResult response = serverFacade.register(user, password, email);
+                    new PostLogin(response.authToken());
 
                 } catch (Exception e) {
                     System.out.println("Error trying to register");
@@ -55,7 +56,7 @@ public class Prelogin {
                     String password = scanner.next();
 
                     LoginResult response = serverFacade.login(user, password);
-                    System.out.println(response.authToken());
+                    new PostLogin(response.authToken());
 
                 } catch (Exception e) {
                     System.out.println("Error: Username and/or password not correct");
