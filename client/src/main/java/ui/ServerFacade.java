@@ -3,6 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import exception.ServerException;
 import requestsresults.*;
+import ui.facaderequests.FacadeCreateGame;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +40,10 @@ public class ServerFacade {
         this.makeRequest("DELETE", "/session", null, null, authToken);
     }
 
-    public void createGame() {
+    public CreateGameResult createGame(String authToken, String gameName) throws ServerException {
+        FacadeCreateGame createGameRequest = new FacadeCreateGame(gameName);
 
+        return makeRequest("POST", "/game", createGameRequest, CreateGameResult.class, authToken);
     }
 
     public void listGames() {

@@ -1,6 +1,7 @@
 package ui;
 
 import exception.ServerException;
+import requestsresults.CreateGameResult;
 
 import java.util.Scanner;
 
@@ -39,7 +40,13 @@ public class PostLogin {
                 printMenu();
             }
             else if (input.equalsIgnoreCase("create")) {
-                printChessboard();
+                String gameName = scanner.nextLine();
+                try {
+                    CreateGameResult response = serverFacade.createGame(authToken, gameName);
+                    System.out.println("created game with id:" + response.gameID());
+                } catch (ServerException e) {
+                    System.out.println("Unable to create game");
+                }
             }
             else if (input.equalsIgnoreCase("list")) {
                 printMenu();
