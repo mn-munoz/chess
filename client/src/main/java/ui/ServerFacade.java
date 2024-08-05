@@ -2,7 +2,6 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ServerException;
-import requestsresults.*;
 import ui.facaderequests.FacadeCreateGame;
 import ui.facaderequests.FacadeJoinGame;
 import ui.facaderequests.FacadeLogin;
