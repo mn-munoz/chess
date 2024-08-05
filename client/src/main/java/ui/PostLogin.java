@@ -5,11 +5,13 @@ import model.GameSummary;
 import requestsresults.CreateGameResult;
 import requestsresults.ListGamesResult;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class PostLogin {
     private final String authToken;
     private final ServerFacade serverFacade;
+    private final HashMap<Integer, GameSummary> gameMap = new HashMap<>();
 
     public PostLogin(String authToken, ServerFacade serverFacade) {
         this.authToken = authToken;
@@ -26,7 +28,7 @@ public class PostLogin {
             String input = scanner.next();
 
             if (input.equalsIgnoreCase("quit")) {
-                continueLoop = false;
+                System.exit(0);
             }
             else if (input.equalsIgnoreCase("logout")) {
                 try {
@@ -37,15 +39,13 @@ public class PostLogin {
                 }
             }
             else if (input.equalsIgnoreCase("help")) {
-                System.out.print(EscapeSequences.ERASE_SCREEN);
-                System.out.flush();
                 printMenu();
             }
             else if (input.equalsIgnoreCase("create")) {
                 String gameName = scanner.nextLine();
                 try {
                     CreateGameResult response = serverFacade.createGame(authToken, gameName);
-                    System.out.println("created game with id:" + response.gameID());
+                    System.out.println("Created game with id:" + response.gameID());
                 } catch (ServerException e) {
                     System.out.println("Unable to create game");
                 }
@@ -53,13 +53,19 @@ public class PostLogin {
             else if (input.equalsIgnoreCase("list")) {
                 try{
                     ListGamesResult response = serverFacade.listGames(authToken);
+                    int lastKeyGiven = 1;
 
                     for (GameSummary game: response.games()) {
-                        String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "[AVAILABLE]";
-                        String blackUser = game.blackUsername() != null ? game.blackUsername() : "[AVAILABLE]";
+                        gameMap.put(lastKeyGiven, game);
+                        lastKeyGiven++;
+                    }
 
-                        System.out.println("ID: " + game.gameID() + "->" +
-                                "Game name: " + game.gameName() +
+                    for (int key: gameMap.keySet()) {
+                        String whiteUser = gameMap.get(key).whiteUsername() != null ? gameMap.get(key).whiteUsername() : "[AVAILABLE]";
+                        String blackUser = gameMap.get(key).blackUsername() != null ? gameMap.get(key).blackUsername() : "[AVAILABLE]";
+
+                        System.out.println("Game ID: " + key + "->" +
+                                "Game name: " + gameMap.get(key).gameName() +
                                 " White user:" + whiteUser +
                                 " Black user: " + blackUser);
                     }
@@ -71,8 +77,8 @@ public class PostLogin {
             else if (input.equalsIgnoreCase("join")) {
                 try {
                     int gameId = scanner.nextInt();
-                    String chessTeam = scanner.next();
-                    serverFacade.joinGame(authToken, gameId, chessTeam);
+                    String chessTeam = scanner.next().toUpperCase();
+                    serverFacade.joinGame(authToken, gameMap.get(gameId).gameID(), chessTeam);
                     printChessboard();
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");
