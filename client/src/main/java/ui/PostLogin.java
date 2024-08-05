@@ -4,6 +4,7 @@ import exception.ServerException;
 import model.GameSummary;
 import requestsresults.CreateGameResult;
 import requestsresults.ListGamesResult;
+import ui.facaderesults.FacadeCreateGameResult;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -44,7 +45,7 @@ public class PostLogin {
             else if (input.equalsIgnoreCase("create")) {
                 String gameName = scanner.nextLine();
                 try {
-                    CreateGameResult response = serverFacade.createGame(authToken, gameName);
+                    FacadeCreateGameResult response = serverFacade.createGame(authToken, gameName);
                     System.out.println("Created game with id:" + response.gameID());
                 } catch (ServerException e) {
                     System.out.println("Unable to create game");

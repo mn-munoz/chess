@@ -5,6 +5,11 @@ import exception.ServerException;
 import requestsresults.*;
 import ui.facaderequests.FacadeCreateGame;
 import ui.facaderequests.FacadeJoinGame;
+import ui.facaderequests.FacadeLogin;
+import ui.facaderequests.FacadeRegister;
+import ui.facaderesults.FacadeCreateGameResult;
+import ui.facaderesults.FacadeLoginResult;
+import ui.facaderesults.FacadeRegisterResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,16 +25,16 @@ public class ServerFacade {
         this.baseUrl = baseUrl + port;
     }
 
-    public RegisterResult register(String user, String password, String email) throws ServerException {
-        RegisterRequest registerRequest = new RegisterRequest(user, password, email);
+    public FacadeRegisterResult register(String user, String password, String email) throws ServerException {
+        FacadeRegister registerRequest = new FacadeRegister(user, password, email);
 
-        return this.makeRequest("POST", "/user", registerRequest, RegisterResult.class, null);
+        return this.makeRequest("POST", "/user", registerRequest, FacadeRegisterResult.class, null);
     }
 
-    public LoginResult login(String username, String password) throws ServerException {
-        LoginRequest loginRequest = new LoginRequest(username, password);
+    public FacadeLoginResult login(String username, String password) throws ServerException {
+        FacadeLogin loginRequest = new FacadeLogin(username, password);
 
-        return this.makeRequest("POST", "/session", loginRequest, LoginResult.class, null);
+        return this.makeRequest("POST", "/session", loginRequest, FacadeLoginResult.class, null);
     }
 
     public void clear() {
@@ -41,10 +46,10 @@ public class ServerFacade {
         this.makeRequest("DELETE", "/session", null, null, authToken);
     }
 
-    public CreateGameResult createGame(String authToken, String gameName) throws ServerException {
+    public FacadeCreateGameResult createGame(String authToken, String gameName) throws ServerException {
         FacadeCreateGame createGameRequest = new FacadeCreateGame(gameName);
 
-        return makeRequest("POST", "/game", createGameRequest, CreateGameResult.class, authToken);
+        return makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
     }
 
     public ListGamesResult listGames(String authToken) throws ServerException {

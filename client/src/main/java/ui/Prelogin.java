@@ -1,6 +1,7 @@
 package ui;
 import requestsresults.LoginResult;
-import requestsresults.RegisterResult;
+import ui.facaderesults.FacadeLoginResult;
+import ui.facaderesults.FacadeRegisterResult;
 
 import java.util.Scanner;
 
@@ -44,7 +45,7 @@ public class Prelogin {
                     String password = scanner.next();
                     String email = scanner.next();
 
-                    RegisterResult response = serverFacade.register(user, password, email);
+                    FacadeRegisterResult response = serverFacade.register(user, password, email);
                     new PostLogin(response.authToken(), serverFacade);
 
                 } catch (Exception e) {
@@ -56,7 +57,7 @@ public class Prelogin {
                     String user = scanner.next();
                     String password = scanner.next();
 
-                    LoginResult response = serverFacade.login(user, password);
+                    FacadeLoginResult response = serverFacade.login(user, password);
                     new PostLogin(response.authToken(), serverFacade);
 
                 } catch (Exception e) {
