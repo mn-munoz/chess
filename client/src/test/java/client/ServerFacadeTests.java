@@ -1,11 +1,13 @@
 package client;
 
 import exception.ServerException;
+import model.GameSummary;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
 import ui.facaderesults.FacadeRegisterResult;
 
+import java.util.ArrayList;
 
 
 public class ServerFacadeTests {
@@ -95,6 +97,33 @@ public class ServerFacadeTests {
         FacadeRegisterResult result = facade.register("listGames", "12345", "a@e.com");
         facade.createGame(result.authToken(), "testing");
         Assertions.assertThrows(ServerException.class, () -> facade.listGames(null));
+    }
+
+    @Test
+    public void joinGameSuccess() throws ServerException {
+        FacadeRegisterResult result = facade.register("JoinGame", "12345", "a@e.com");
+        facade.createGame(result.authToken(), "newGameToTest");
+        ArrayList<GameSummary> gameList = (ArrayList<GameSummary>) facade.listGames(result.authToken()).games();
+        int gameId = gameList.getFirst().gameID();
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(result.authToken(),gameId, "White".toUpperCase()));
+    }
+
+    @Test
+    public void joinGameFailure() throws ServerException {
+        FacadeRegisterResult result = facade.register("JoinGameFail", "12345", "a@e.com");
+        facade.createGame(result.authToken(), "newGameToTest");
+        ArrayList<GameSummary> gameList = (ArrayList<GameSummary>) facade.listGames(result.authToken()).games();
+        int gameId = gameList.getFirst().gameID();
+        Assertions.assertThrows(ServerException.class, () -> facade.joinGame(result.authToken(),gameId, "blue".toUpperCase()));
+    }
+
+    @Test
+    public void joinGameNotAuthorized() throws ServerException {
+        FacadeRegisterResult result = facade.register("JoinGameFail", "12345", "a@e.com");
+        facade.createGame(result.authToken(), "newGameToTest");
+        ArrayList<GameSummary> gameList = (ArrayList<GameSummary>) facade.listGames(result.authToken()).games();
+        int gameId = gameList.getFirst().gameID();
+        Assertions.assertThrows(ServerException.class, () -> facade.joinGame(null,gameId, "blue".toUpperCase()));
     }
 
 }
