@@ -6,7 +6,6 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
 import ui.facaderesults.FacadeRegisterResult;
-
 import java.util.ArrayList;
 
 
@@ -119,7 +118,7 @@ public class ServerFacadeTests {
 
     @Test
     public void joinGameNotAuthorized() throws ServerException {
-        FacadeRegisterResult result = facade.register("JoinGameFail", "12345", "a@e.com");
+        FacadeRegisterResult result = facade.register("JoinGameFailNotAuthorized", "12345", "a@e.com");
         facade.createGame(result.authToken(), "newGameToTest");
         ArrayList<GameSummary> gameList = (ArrayList<GameSummary>) facade.listGames(result.authToken()).games();
         int gameId = gameList.getFirst().gameID();
