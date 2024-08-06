@@ -34,7 +34,7 @@ public class ServerFacadeTests {
 
     @Test
     public void registerSuccessTest() throws ServerException {
-        FacadeRegisterResult result = facade.register("newUser", "1234", "e@e.com");
+        FacadeRegisterResult result = facade.register("newUserTest", "1234", "e@e.com");
         Assertions.assertNotNull(result);
         Assertions.assertTrue(result.authToken().length() > 10);
     }
@@ -43,5 +43,17 @@ public class ServerFacadeTests {
     public void registerFailure() throws ServerException {
         facade.register("newUser", "12345", "a@e.com");
         Assertions.assertThrows(ServerException.class, () -> facade.register("newUser", "1234", "e@e.com"));
+    }
+
+    @Test
+    public void loginSuccess() throws ServerException {
+        facade.register("loginTest", "12345", "a@e.com");
+        Assertions.assertDoesNotThrow(() -> facade.login("loginTest", "12345"));
+    }
+
+    @Test
+    public void loginFailure() throws ServerException {
+        facade.register("loginTestFailure", "12345", "a@e.com");
+        Assertions.assertThrows(ServerException.class, () -> facade.login("loginTestFailure", "123"));
     }
 }
