@@ -79,4 +79,19 @@ public class ServerFacadeTests {
     public void createGameFailure() {
         Assertions.assertThrows(ServerException.class, () -> facade.createGame(null, "gameTest"));
     }
+
+    @Test
+    public void listGamesSuccess() throws ServerException {
+        FacadeRegisterResult result = facade.register("listGamesTest", "12345", "a@e.com");
+        facade.createGame(result.authToken(), "testing");
+        Assertions.assertDoesNotThrow(() -> facade.listGames(result.authToken()));
+        Assertions.assertNotNull(facade.listGames(result.authToken()).games());
+    }
+
+    @Test
+    public void listGamesFailure() throws ServerException {
+        FacadeRegisterResult result = facade.register("listGames", "12345", "a@e.com");
+        facade.createGame(result.authToken(), "testing");
+        Assertions.assertThrows(ServerException.class, () -> facade.listGames(null));
+    }
 }
