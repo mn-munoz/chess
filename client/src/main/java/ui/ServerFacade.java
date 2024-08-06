@@ -37,8 +37,8 @@ public class ServerFacade {
         return this.makeRequest("POST", "/session", loginRequest, FacadeLoginResult.class, null);
     }
 
-    public void clear() {
-
+    public void clear() throws ServerException {
+        makeRequest("DELETE", "/db", null, null, null);
     }
 
     public void logout(String authToken) throws ServerException {
@@ -46,10 +46,10 @@ public class ServerFacade {
         this.makeRequest("DELETE", "/session", null, null, authToken);
     }
 
-    public FacadeCreateGameResult createGame(String authToken, String gameName) throws ServerException {
+    public void createGame(String authToken, String gameName) throws ServerException {
         FacadeCreateGame createGameRequest = new FacadeCreateGame(gameName);
 
-        return makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
+        makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
     }
 
     public FacadeListGamesResult listGames(String authToken) throws ServerException {

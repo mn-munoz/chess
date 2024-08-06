@@ -2,7 +2,6 @@ package ui;
 
 import exception.ServerException;
 import model.GameSummary;
-import ui.facaderesults.FacadeCreateGameResult;
 import ui.facaderesults.FacadeListGamesResult;
 
 import java.util.HashMap;
@@ -44,8 +43,7 @@ public class PostLogin {
             else if (input.equalsIgnoreCase("create")) {
                 String gameName = scanner.nextLine();
                 try {
-                    FacadeCreateGameResult response = serverFacade.createGame(authToken, gameName);
-                    System.out.println("Created game with id:" + response.gameID());
+                    serverFacade.createGame(authToken, gameName);
                 } catch (ServerException e) {
                     System.out.println("Unable to create game");
                 }
@@ -64,7 +62,7 @@ public class PostLogin {
                         String whiteUser = gameMap.get(key).whiteUsername() != null ? gameMap.get(key).whiteUsername() : "[AVAILABLE]";
                         String blackUser = gameMap.get(key).blackUsername() != null ? gameMap.get(key).blackUsername() : "[AVAILABLE]";
 
-                        System.out.println("Game ID: " + key + "->" +
+                        System.out.println("Game Number: " + key + "->" +
                                 "Game name: " + gameMap.get(key).gameName() +
                                 " White user:" + whiteUser +
                                 " Black user: " + blackUser);
@@ -79,15 +77,23 @@ public class PostLogin {
                     int gameId = scanner.nextInt();
                     String chessTeam = scanner.next().toUpperCase();
                     serverFacade.joinGame(authToken, gameMap.get(gameId).gameID(), chessTeam);
-                    printChessboard();
+                    if (chessTeam.equalsIgnoreCase("WHITE")) {
+                        printChessboardWhite();
+                    }
+                    else if (chessTeam.equalsIgnoreCase("BLACK")){
+                        printChessboardBlack();
+                    }
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");
                 }
             }
             else if (input.equalsIgnoreCase("observe")) {
                 try {
-                    scanner.nextInt();
-                    printChessboard();
+                    if (gameMap.containsKey(scanner.nextInt())) {
+                        printChessboardWhite();
+                    } else {
+                        throw new IllegalArgumentException("not valid id");
+                    }
                 } catch (Exception e) {
                     System.out.println("ID not valid. Must be a number");
                 }
@@ -109,7 +115,41 @@ public class PostLogin {
         System.out.println("help - with possible commands");
     }
 
-    private void printChessboard() {
+    private void printChessboardBlack() {
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+
+                if (i == 0 || i == 9) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                    System.out.print(" " + getLetter(9 - j) + " ");
+                    System.out.print(EscapeSequences.RESET_BG_COLOR);
+                }
+
+                if (j == 0 || j == 9) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                    if (i > 0 && i < 9) {
+                        System.out.print(" " + i + " ");
+                    }
+                    System.out.print(EscapeSequences.RESET_BG_COLOR);
+                }
+
+                String piece = getPieceAtPosition(i, 9 - j);
+                if (i > 0 && i < 9 && j > 0 && j < 9) {
+                    if ((i + j) % 2 == 0) {
+                        setWhiteSquare();
+                    }
+                    else {
+                        setBlackSquare();
+                    }
+                    System.out.print(piece);
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    private void printChessboardWhite() {
 
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
@@ -123,12 +163,12 @@ public class PostLogin {
                 if (j == 0 || j == 9) {
                     System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
                     if (i > 0 && i < 9) {
-                        System.out.print(" " + i + " ");
+                        System.out.print(" " + (9 - i) + " ");
                     }
                     System.out.print(EscapeSequences.RESET_BG_COLOR);
                 }
 
-                String piece = getPieceAtPosition(i, j);
+                String piece = getPieceAtPosition( 9 - i, j);
                 if (i > 0 && i < 9 && j > 0 && j < 9) {
                     if ((i + j) % 2 == 0) {
                         setWhiteSquare();
