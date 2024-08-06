@@ -34,7 +34,7 @@ public class PostLogin {
                     serverFacade.logout(authToken);
                     continueLoop = false;
                 } catch (ServerException e) {
-                    System.out.println("Could not logout: " + e.getMessage());
+                    System.out.println("Could not logout");
                 }
             }
             else if (input.equalsIgnoreCase("help")) {
