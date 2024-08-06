@@ -56,4 +56,15 @@ public class ServerFacadeTests {
         facade.register("loginTestFailure", "12345", "a@e.com");
         Assertions.assertThrows(ServerException.class, () -> facade.login("loginTestFailure", "123"));
     }
+
+    @Test
+    public void logoutSuccess() throws ServerException {
+        FacadeRegisterResult result = facade.register("LogoutTest", "12345", "a@e.com");
+        Assertions.assertDoesNotThrow(() -> facade.logout(result.authToken()));
+    }
+
+    @Test
+    public void logoutFailure() {
+        Assertions.assertThrows(ServerException.class, () -> facade.logout(null));
+    }
 }
