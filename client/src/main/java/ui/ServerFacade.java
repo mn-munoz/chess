@@ -1,7 +1,7 @@
 package ui;
 
-import com.google.gson.Gson;
 import exception.ServerException;
+import ui.communicators.HttpCommunicator;
 import ui.facaderequests.FacadeCreateGame;
 import ui.facaderequests.FacadeJoinGame;
 import ui.facaderequests.FacadeLogin;
@@ -11,98 +11,72 @@ import ui.facaderesults.FacadeListGamesResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.*;
-
 public class ServerFacade {
 
-    private String baseUrl = "http://localhost:";
+    private final HttpCommunicator httpCommunicator;
 
     public ServerFacade(int port) {
-        this.baseUrl = baseUrl + port;
+        this.httpCommunicator = new HttpCommunicator("http://localhost:" + port);
     }
 
     public FacadeRegisterResult register(String user, String password, String email) throws ServerException {
         FacadeRegister registerRequest = new FacadeRegister(user, password, email);
-
-        return this.makeRequest("POST", "/user", registerRequest, FacadeRegisterResult.class, null);
+        try {
+            return httpCommunicator.makeRequest("POST", "/user", registerRequest, FacadeRegisterResult.class, null);
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
+        }
     }
 
     public FacadeLoginResult login(String username, String password) throws ServerException {
         FacadeLogin loginRequest = new FacadeLogin(username, password);
-
-        return this.makeRequest("POST", "/session", loginRequest, FacadeLoginResult.class, null);
+        try {
+            return httpCommunicator.makeRequest("POST", "/session", loginRequest, FacadeLoginResult.class, null);
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage());
+        }
     }
 
     public void clear() throws ServerException {
-        makeRequest("DELETE", "/db", null, null, null);
-    }
-
-    public void logout(String authToken) throws ServerException {
-
-        this.makeRequest("DELETE", "/session", null, null, authToken);
-    }
-
-    public void createGame(String authToken, String gameName) throws ServerException {
-        FacadeCreateGame createGameRequest = new FacadeCreateGame(gameName);
-
-        makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
-    }
-
-    public FacadeListGamesResult listGames(String authToken) throws ServerException {
-        return makeRequest("GET", "/game", null, FacadeListGamesResult.class, authToken);
-    }
-
-    public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {
-        FacadeJoinGame joinGameRequest = new FacadeJoinGame(teamColor, gameId);
-
-        makeRequest("PUT", "/game", joinGameRequest, null, authToken);
-    }
-
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ServerException {
         try {
-            URL url = (new URI(baseUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-            writeRequest(request, http, authToken);
-            http.connect();
-            if (http.getResponseCode() >= 400) {
-                throw new ServerException("Error trying to make request: " + http.getResponseCode());
-            }
-            return readResponse(http, responseClass);
+            httpCommunicator.makeRequest("DELETE", "/db", null, null, null);
         } catch (Exception ex) {
             throw new ServerException(ex.getMessage());
         }
     }
 
-    private static void writeRequest(Object request, HttpURLConnection http, String authToken) throws IOException {
-        if (authToken != null) {
-            http.setRequestProperty("Authorization", authToken);
-        }
-
-        if (request != null) {
-            http.addRequestProperty("Content-Type", "application/json");
-            String requestData = new Gson().toJson(request);
-            try (OutputStream reqBody = http.getOutputStream()) {
-                reqBody.write(requestData.getBytes());
-            }
+    public void logout(String authToken) throws ServerException {
+        try {
+            httpCommunicator.makeRequest("DELETE", "/session", null, null, authToken);
+        } catch (Exception ex) {
+            throw new ServerException(ex.getMessage());
         }
     }
 
-    private static <T> T readResponse(HttpURLConnection http, Class<T> responseClass) throws IOException {
-        T response = null;
-        if (http.getContentLength() < 0) {
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader reader = new InputStreamReader(respBody);
-                if (responseClass != null) {
-                    response = new Gson().fromJson(reader, responseClass);
-                }
-            }
+    public void createGame(String authToken, String gameName) throws ServerException {
+        FacadeCreateGame createGameRequest = new FacadeCreateGame(gameName);
+        try {
+            httpCommunicator.makeRequest("POST", "/game", createGameRequest, FacadeCreateGameResult.class, authToken);
+        } catch (Exception ex) {
+            throw new ServerException(ex.getMessage());
         }
-        return response;
     }
+
+    public FacadeListGamesResult listGames(String authToken) throws ServerException {
+        try {
+            return httpCommunicator.makeRequest("GET", "/game", null, FacadeListGamesResult.class, authToken);
+        } catch (Exception ex) {
+            throw new ServerException(ex.getMessage());
+        }
+    }
+
+    public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {
+        FacadeJoinGame joinGameRequest = new FacadeJoinGame(teamColor, gameId);
+        try {
+            httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, authToken);
+        } catch (Exception ex) {
+            throw new ServerException(ex.getMessage());
+        }
+    }
+
 }
