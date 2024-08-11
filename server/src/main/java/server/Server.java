@@ -4,6 +4,7 @@ import requestsresults.ErrorResult;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import handlers.*;
+import server.websocket.WebSocketHandler;
 import spark.*;
 
 public class Server {
@@ -30,6 +31,9 @@ public class Server {
 
     private void createRoutes(){
         Gson gson = new Gson();
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.delete("/db", (request, response) -> {
             try {

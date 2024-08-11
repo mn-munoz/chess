@@ -11,14 +11,20 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
 
+    private final ConnectionManager connections = new ConnectionManager();
+
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> enter(command.visitorName(), session);
-            case MAKE_MOVE -> exit(command.visitorName());
-            case LEAVE -> ;
-            case RESIGN -> ;
+            case CONNECT -> justSomething();
+            case MAKE_MOVE -> justSomething();
+            case LEAVE -> justSomething();
+            case RESIGN -> justSomething();
         }
     }
+
+    public void justSomething() {
+        System.out.println("just Something");
+    };
 }
