@@ -3,14 +3,19 @@ package ui;
 import exception.ServerException;
 import model.GameSummary;
 import ui.facaderesults.FacadeListGamesResult;
+import websocket.messages.ServerMessage;
 
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class PostLogin {
+import static websocket.messages.ServerMessage.ServerMessageType.*;
+
+public class PostLogin implements ServerMessageObserver {
     private final String authToken;
     private final ServerFacade serverFacade;
     private final HashMap<Integer, GameSummary> gameMap = new HashMap<>();
+    private int activeGameID;
+    private String activeTeamColor;
 
     public PostLogin(String authToken, ServerFacade serverFacade) {
         this.authToken = authToken;
@@ -76,13 +81,19 @@ public class PostLogin {
                 try {
                     int gameId = scanner.nextInt();
                     String chessTeam = scanner.next().toUpperCase();
-                    serverFacade.joinGame(authToken, gameMap.get(gameId).gameID(), chessTeam);
+
+                    activeGameID = gameMap.get(gameId).gameID();
+                    activeTeamColor = chessTeam;
+
+                    serverFacade.joinGame(authToken, activeGameID, activeTeamColor, this);
+
                     if (chessTeam.equalsIgnoreCase("WHITE")) {
                         printChessboardWhite();
                     }
                     else if (chessTeam.equalsIgnoreCase("BLACK")){
                         printChessboardBlack();
                     }
+
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");
                 }
@@ -102,6 +113,29 @@ public class PostLogin {
                 System.out.println("Invalid input");
             }
         }
+
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+            switch (message.getServerMessageType()) {
+                case LOAD_GAME:
+                    if ("WHITE".equalsIgnoreCase(activeTeamColor)) {
+                        printChessboardWhite();
+                    } else if ("BLACK".equalsIgnoreCase(activeTeamColor)) {
+                        printChessboardBlack();
+                    }
+                    break;
+                case ERROR:
+                    System.out.println("Server error: " + message);
+                    break;
+                case NOTIFICATION:
+                    System.out.println("Notification: " + message);
+                    break;
+                default:
+                    System.out.println("Unknown server message type: " + message.getServerMessageType());
+                    break;
+            }
 
     }
 

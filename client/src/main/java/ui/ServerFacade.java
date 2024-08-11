@@ -2,6 +2,7 @@ package ui;
 
 import exception.ServerException;
 import ui.communicators.HttpCommunicator;
+import ui.communicators.WebSocketCommunicator;
 import ui.facaderequests.FacadeCreateGame;
 import ui.facaderequests.FacadeJoinGame;
 import ui.facaderequests.FacadeLogin;
@@ -10,13 +11,17 @@ import ui.facaderesults.FacadeCreateGameResult;
 import ui.facaderesults.FacadeListGamesResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
+import websocket.commands.UserGameCommand;
 
 public class ServerFacade {
 
     private final HttpCommunicator httpCommunicator;
+    private final String baseUrl;
+    private WebSocketCommunicator ws;
 
     public ServerFacade(int port) {
-        this.httpCommunicator = new HttpCommunicator("http://localhost:" + port);
+        this.baseUrl = "http://localhost:" + port;
+        this.httpCommunicator = new HttpCommunicator(baseUrl);
     }
 
     public FacadeRegisterResult register(String user, String password, String email) throws ServerException {
@@ -70,10 +75,12 @@ public class ServerFacade {
         }
     }
 
-    public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {
+    public void joinGame(String authToken, int gameId, String teamColor, ServerMessageObserver observer) throws ServerException {
         FacadeJoinGame joinGameRequest = new FacadeJoinGame(teamColor, gameId);
         try {
             httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, authToken);
+            this.ws = new WebSocketCommunicator(baseUrl, observer);
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId));
         } catch (Exception ex) {
             throw new ServerException(ex.getMessage());
         }
