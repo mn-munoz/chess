@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
-public class PostLogin implements ServerMessageObserver {
+public class PostLogin {
     private final String authToken;
     private final ServerFacade serverFacade;
     private final HashMap<Integer, GameSummary> gameMap = new HashMap<>();
@@ -85,14 +85,7 @@ public class PostLogin implements ServerMessageObserver {
                     activeGameID = gameMap.get(gameId).gameID();
                     activeTeamColor = chessTeam;
 
-                    serverFacade.joinGame(authToken, activeGameID, activeTeamColor, this);
-
-                    if (chessTeam.equalsIgnoreCase("WHITE")) {
-                        printChessboardWhite();
-                    }
-                    else if (chessTeam.equalsIgnoreCase("BLACK")){
-                        printChessboardBlack();
-                    }
+                    Gameplay gameplay = new Gameplay(authToken, gameId, chessTeam);
 
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");
@@ -116,28 +109,28 @@ public class PostLogin implements ServerMessageObserver {
 
     }
 
-    @Override
-    public void notify(ServerMessage message) {
-            switch (message.getServerMessageType()) {
-                case LOAD_GAME:
-                    if ("WHITE".equalsIgnoreCase(activeTeamColor)) {
-                        printChessboardWhite();
-                    } else if ("BLACK".equalsIgnoreCase(activeTeamColor)) {
-                        printChessboardBlack();
-                    }
-                    break;
-                case ERROR:
-                    System.out.println("Server error: " + message);
-                    break;
-                case NOTIFICATION:
-                    System.out.println("Notification: " + message);
-                    break;
-                default:
-                    System.out.println("Unknown server message type: " + message.getServerMessageType());
-                    break;
-            }
-
-    }
+//    @Override
+//    public void notify(ServerMessage message) {
+//            switch (message.getServerMessageType()) {
+//                case LOAD_GAME:
+//                    if ("WHITE".equalsIgnoreCase(activeTeamColor)) {
+//                        printChessboardWhite();
+//                    } else if ("BLACK".equalsIgnoreCase(activeTeamColor)) {
+//                        printChessboardBlack();
+//                    }
+//                    break;
+//                case ERROR:
+//                    System.out.println("Server error: " + message);
+//                    break;
+//                case NOTIFICATION:
+//                    System.out.println("Notification: " + message);
+//                    break;
+//                default:
+//                    System.out.println("Unknown server message type: " + message.getServerMessageType());
+//                    break;
+//            }
+//
+//    }
 
     private void printMenu() {
         System.out.println("create <NAME> - a game");

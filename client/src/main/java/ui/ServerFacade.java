@@ -18,10 +18,17 @@ public class ServerFacade {
     private final HttpCommunicator httpCommunicator;
     private final String baseUrl;
     private WebSocketCommunicator ws;
+    private ServerMessageObserver observer;
 
     public ServerFacade(int port) {
         this.baseUrl = "http://localhost:" + port;
         this.httpCommunicator = new HttpCommunicator(baseUrl);
+    }
+
+    public ServerFacade(int port, ServerMessageObserver observer) {
+        this.baseUrl = "http://localhost:" + port;
+        this.httpCommunicator = new HttpCommunicator(baseUrl);
+        this.observer = observer;
     }
 
     public FacadeRegisterResult register(String user, String password, String email) throws ServerException {
@@ -75,7 +82,7 @@ public class ServerFacade {
         }
     }
 
-    public void joinGame(String authToken, int gameId, String teamColor, ServerMessageObserver observer) throws ServerException {
+    public void joinGame(String authToken, int gameId, String teamColor) throws ServerException {
         FacadeJoinGame joinGameRequest = new FacadeJoinGame(teamColor, gameId);
         try {
             httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, authToken);
