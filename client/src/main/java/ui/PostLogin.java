@@ -85,7 +85,9 @@ public class PostLogin {
                     activeGameID = gameMap.get(gameId).gameID();
                     activeTeamColor = chessTeam;
 
-                    Gameplay gameplay = new Gameplay(authToken, gameId, chessTeam);
+                    Gameplay gameplay = new Gameplay(authToken, activeGameID, serverFacade, chessTeam);
+                    serverFacade.setObserver(gameplay);
+                    gameplay.joinGame();
 
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");
@@ -94,7 +96,8 @@ public class PostLogin {
             else if (input.equalsIgnoreCase("observe")) {
                 try {
                     if (gameMap.containsKey(scanner.nextInt())) {
-                        printChessboardWhite();
+                        Gameplay gameplay = new Gameplay(authToken, serverFacade, activeGameID);
+                        serverFacade.setObserver(gameplay);
                     } else {
                         throw new IllegalArgumentException("not valid id");
                     }

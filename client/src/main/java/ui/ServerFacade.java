@@ -11,7 +11,9 @@ import ui.facaderesults.FacadeCreateGameResult;
 import ui.facaderesults.FacadeListGamesResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 public class ServerFacade {
 
@@ -25,9 +27,7 @@ public class ServerFacade {
         this.httpCommunicator = new HttpCommunicator(baseUrl);
     }
 
-    public ServerFacade(int port, ServerMessageObserver observer) {
-        this.baseUrl = "http://localhost:" + port;
-        this.httpCommunicator = new HttpCommunicator(baseUrl);
+    public void setObserver(ServerMessageObserver observer) {
         this.observer = observer;
     }
 
@@ -87,7 +87,7 @@ public class ServerFacade {
         try {
             httpCommunicator.makeRequest("PUT", "/game", joinGameRequest, null, authToken);
             this.ws = new WebSocketCommunicator(baseUrl, observer);
-            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId));
+            ws.sendCommand(new ConnectCommand(authToken, gameId));
         } catch (Exception ex) {
             throw new ServerException(ex.getMessage());
         }

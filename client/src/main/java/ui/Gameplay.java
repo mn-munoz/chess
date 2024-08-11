@@ -11,23 +11,29 @@ public class Gameplay implements ServerMessageObserver{
     private final String teamColor;
     private WebSocketCommunicator ws;
 
-    Gameplay(String authToken, int gameId, String teamColor) throws ServerException {
+    Gameplay(String authToken, int gameId, ServerFacade serverFacade, String teamColor) throws ServerException {
         this.authToken = authToken;
-        this.serverFacade = new ServerFacade(8000, this);
+        this.serverFacade = serverFacade;
+        this.serverFacade.setObserver(this);
         this.gameId = gameId;
         this.teamColor = teamColor;
 
-        this.serverFacade.joinGame(authToken, gameId, teamColor);
     }
 
-    Gameplay(String authToken, int gameId) {
+    Gameplay(String authToken, ServerFacade serverFacade, int gameId) {
         this.authToken = authToken;
-        this.serverFacade = new ServerFacade(8000, this);
+        this.serverFacade = serverFacade;
+        this.serverFacade.setObserver(this);
         this.gameId = gameId;
         this.teamColor = "WHITE";
     }
 
-    private void gameplayLoop() {
+    public void joinGame() throws ServerException {
+        serverFacade.joinGame(authToken, gameId, teamColor);
+
+    }
+
+    public void showGame() {
 
     }
 

@@ -24,19 +24,26 @@ public class WebSocketCommunicator extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+//                    Notification notification = new Gson().fromJson(message, Notification.class);
+//                    notificationHandler.notify(notification);
+                    observer.notify(serverMessage);
+                }
+            });
+
         } catch (DeploymentException | IOException | URISyntaxException e) {
             throw new ServerException(e.getMessage());
         }
-    }
 
-    @OnMessage
-    public void onMessage(String message) {
-        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-        observer.notify(serverMessage);
     }
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+        System.out.println("WebSocket opened");
+        this.session = session;
     }
 
     public void sendCommand(UserGameCommand command) throws ServerException {

@@ -31,8 +31,8 @@ public class Server {
 
     private void createRoutes(){
         Gson gson = new Gson();
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
 
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
         Spark.webSocket("/ws", webSocketHandler);
 
         Spark.delete("/db", (request, response) -> {
