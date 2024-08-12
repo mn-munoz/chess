@@ -40,8 +40,6 @@ public class Gameplay implements ServerMessageObserver{
         serverFacade.joinGame(authToken, gameId, teamColor);
     }
 
-    // TODO add functionality for UI
-
     public void gameLoop() {
         Scanner scanner = new Scanner(System.in);
         boolean continueGameLoop = true;
@@ -51,7 +49,7 @@ public class Gameplay implements ServerMessageObserver{
             System.out.print("[GAMEPLAY] >>> ");
             String[] input = scanner.nextLine().split("\\s");
 
-            switch (input[0]) {
+            switch (input[0].toLowerCase()) {
                 case "help":
                     if (input.length != 1 ) {
                         System.out.println("Help only takes one argument.");
@@ -72,6 +70,9 @@ public class Gameplay implements ServerMessageObserver{
                             System.out.println(e.getMessage());
                         }
                     }
+                    break;
+                case "redraw":
+                    printChessboard(game, teamColor);
                     break;
                 default:
                     System.out.println("Invalid command");
@@ -107,11 +108,11 @@ public class Gameplay implements ServerMessageObserver{
     }
 
     private void printGameplayMenu() {
-        System.out.println("redraw - redraws chessboard");
-        System.out.println("leave - leaves game and go back to menu");
+        System.out.println("redraw - redraws chessboard"); // done
+        System.out.println("leave - leaves game and go back to menu"); // done
         System.out.println("move - <EXAMPLE: c2c3> moves chess piece");
         System.out.println("resign - forfeit game (Will not leave game)");
-        System.out.println("highlight - highlights all legal moves");
+        System.out.println("highlight - <EXAMPLE: c2> highlights all legal moves for given piece");
     }
 
     private void printChessboard(ChessGame game, String teamColor) {
