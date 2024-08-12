@@ -389,22 +389,30 @@ public class Gameplay implements ServerMessageObserver{
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_KING;
                 }
-                else return EscapeSequences.BLACK_KING;
+                else {
+                    return EscapeSequences.BLACK_KING;
+                }
             case QUEEN:
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_QUEEN;
                 }
-                else return EscapeSequences.BLACK_QUEEN;
+                else {
+                    return EscapeSequences.BLACK_QUEEN;
+                }
             case ROOK:
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_ROOK;
                 }
-                else return EscapeSequences.BLACK_ROOK;
+                else {
+                    return EscapeSequences.BLACK_ROOK;
+                }
             case BISHOP:
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_BISHOP;
                 }
-                else return EscapeSequences.BLACK_BISHOP;
+                else {
+                    return EscapeSequences.BLACK_BISHOP;
+                }
             case KNIGHT:
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_KNIGHT;
@@ -414,7 +422,9 @@ public class Gameplay implements ServerMessageObserver{
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     return EscapeSequences.WHITE_PAWN;
                 }
-                else return EscapeSequences.BLACK_PAWN;
+                else {
+                    return EscapeSequences.BLACK_PAWN;
+                }
         }
 
         return EscapeSequences.EMPTY;
