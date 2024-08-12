@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class ChessGame {
 
-    boolean isWhitesTurn = true;
+    boolean gameOver = false;
     TeamColor currentTeam;
     ChessBoard board;
 
@@ -131,6 +131,14 @@ public class ChessGame {
         } else {
             setTeamTurn(TeamColor.WHITE);
         }
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     /**
@@ -299,11 +307,11 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return isWhitesTurn == chessGame.isWhitesTurn && currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board);
+        return gameOver == chessGame.gameOver && currentTeam == chessGame.currentTeam && Objects.equals(board, chessGame.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isWhitesTurn, currentTeam, board);
+        return Objects.hash(gameOver, currentTeam, board);
     }
 }

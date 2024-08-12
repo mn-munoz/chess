@@ -17,7 +17,6 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.Notification;
 
-import javax.swing.*;
 import java.io.IOException;
 
 @WebSocket
@@ -39,7 +38,7 @@ public class WebSocketHandler {
             case CONNECT -> handleConnect(session, command);
             case MAKE_MOVE -> handleMakeMove(session, gson.fromJson(message, MakeMoveCommand.class));
             case LEAVE -> handleLeave(session, new LeaveCommand(command.getAuthToken(), command.getGameID()));
-            case RESIGN -> handleResign();
+            case RESIGN -> handleResign(session, command);
         }
     }
 
@@ -53,7 +52,7 @@ public class WebSocketHandler {
             }
 
             Notification notification = new Notification(userName + " has left the game");
-            connections.add(userName, session);
+            connections.add(userName, session, gameData.gameID());
             connections.broadcast(userName, notification);
 
             connections.remove(userName);
@@ -64,14 +63,40 @@ public class WebSocketHandler {
 
     }
 
-    public void handleResign() {
+    public void handleResign(Session session, UserGameCommand command) throws IOException {
+        try {
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+            String userName = authDAO.getAuth(command.getAuthToken()).username();
 
+            if (game.isGameOver()) {
+                session.getRemote().sendString(gson.toJson(new ErrorMessage("The game is already over. No further actions can be taken.")));
+                return;
+            }
+
+            if (!isPlayer(userName, gameData)) {
+                throw new IllegalArgumentException("Observers cannot resign");
+            }
+
+            game.setGameOver(true);
+            gameDAO.updateGame(gameData.gameID(), gameData);
+
+            Notification notification = new Notification(userName + " has resigned.");
+            String jsonMessage = gson.toJson(notification);
+            session.getRemote().sendString(jsonMessage);
+            connections.add(userName, session, gameData.gameID());
+            connections.broadcast(userName, notification);
+
+
+        } catch (Exception e) {
+            errorManaging(session, e);
+        }
     }
 
     public void handleConnect(Session session, UserGameCommand command) throws IOException {
         try {
-
-            ChessGame game = gameDAO.getGame(command.getGameID()).game();
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            ChessGame game = gameData.game();
             String userName = authDAO.getAuth(command.getAuthToken()).username();
             String teamColor = setTeamColor(command, userName);
 
@@ -80,7 +105,7 @@ public class WebSocketHandler {
             session.getRemote().sendString(jsonMessage);
 
             Notification notification = new Notification(userName + teamColor + " has connected to the game.");
-            connections.add(userName, session);
+            connections.add(userName, session, gameData.gameID());
             connections.broadcast(userName, notification);
         } catch (Exception e) {
             errorManaging(session, e);
@@ -105,7 +130,7 @@ public class WebSocketHandler {
             }
 
 
-            if (isValidMove(game, move)) {
+            if (!game.isGameOver() && isValidMove(game, move)) {
                 game.makeMove(move);
 
             } else {
@@ -121,12 +146,12 @@ public class WebSocketHandler {
             connections.broadcast(userName, loadGame);
 
             Notification notification = new Notification(userName + teamColor + " made a move!");
-            connections.add(userName, session);
+            connections.add(userName, session, gameData.gameID());
             connections.broadcast(userName, notification);
 
             if (isSpecialEvent(game, move)) {
                 notification =  new Notification(userName + teamColor + " is in " + getSpecialEvent(game, move));
-                connections.add(userName, session);
+                connections.add(userName, session, gameData.gameID());
                 connections.broadcast(userName, notification);
             }
         } catch (Exception e) {
