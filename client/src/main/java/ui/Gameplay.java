@@ -1,7 +1,6 @@
 package ui;
 
 import exception.ServerException;
-import ui.communicators.WebSocketCommunicator;
 import websocket.messages.ServerMessage;
 
 public class Gameplay implements ServerMessageObserver{
@@ -9,9 +8,8 @@ public class Gameplay implements ServerMessageObserver{
     private final ServerFacade serverFacade;
     private final int gameId;
     private final String teamColor;
-    private WebSocketCommunicator ws;
 
-    Gameplay(String authToken, int gameId, ServerFacade serverFacade, String teamColor) throws ServerException {
+    Gameplay(String authToken, int gameId, ServerFacade serverFacade, String teamColor) {
         this.authToken = authToken;
         this.serverFacade = serverFacade;
         this.serverFacade.setObserver(this);
@@ -33,9 +31,7 @@ public class Gameplay implements ServerMessageObserver{
 
     }
 
-    public void showGame() {
-
-    }
+    // TODO add functionality for UI
 
     @Override
     public void notify(ServerMessage message) {

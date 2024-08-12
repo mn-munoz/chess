@@ -1,7 +1,6 @@
 package ui.communicators;
 
 import com.google.gson.Gson;
-import exception.ServerException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,8 @@ public class HttpCommunicator {
         this.baseUrl = baseUrl;
     }
 
-    public <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws IOException, URISyntaxException {
+    public <T> T makeRequest(String method, String path, Object request,
+                             Class<T> responseClass, String authToken) throws IOException, URISyntaxException {
         URL url = (new URI(baseUrl + path)).toURL();
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
         http.setRequestMethod(method);
