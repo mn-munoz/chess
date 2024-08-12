@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -37,12 +38,29 @@ public class WebSocketHandler {
         switch (command.getCommandType()) {
             case CONNECT -> handleConnect(session, command);
             case MAKE_MOVE -> handleMakeMove(session, gson.fromJson(message, MakeMoveCommand.class));
-            case LEAVE -> handleLeave();
+            case LEAVE -> handleLeave(session, new LeaveCommand(command.getAuthToken(), command.getGameID()));
             case RESIGN -> handleResign();
         }
     }
 
-    public void handleLeave() {
+    public void handleLeave(Session session, UserGameCommand command) throws IOException {
+        try {
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            String userName = authDAO.getAuth(command.getAuthToken()).username();
+
+            if (isPlayer(userName, gameData)) {
+                setPlayerNull(gameData, userName);
+            }
+
+            Notification notification = new Notification(userName + " has left the game");
+            connections.add(userName, session);
+            connections.broadcast(userName, notification);
+
+            connections.remove(userName);
+
+        } catch (DataAccessException e) {
+            errorManaging(session, e);
+        }
 
     }
 
@@ -65,12 +83,7 @@ public class WebSocketHandler {
             connections.add(userName, session);
             connections.broadcast(userName, notification);
         } catch (Exception e) {
-            ErrorMessage errorMessage = new ErrorMessage("Error: " + e.getMessage());
-            String errorJson = gson.toJson(errorMessage);
-
-            if (session.isOpen()) {
-                session.getRemote().sendString(errorJson);
-            }
+            errorManaging(session, e);
         }
     }
 
@@ -86,8 +99,6 @@ public class WebSocketHandler {
             if (!isPlayer(userName, gameData)) {
                 throw new IllegalArgumentException(userName + " is an observer and is not allowed to make moves");
             }
-
-            System.out.println(gameData.game().getTeamTurn());
 
             if (!isCorrectPlayer(gameData, userName)) {
                 throw new IllegalArgumentException("Not allowed to move pieces from opposite team");
@@ -119,17 +130,42 @@ public class WebSocketHandler {
                 connections.broadcast(userName, notification);
             }
         } catch (Exception e) {
-            ErrorMessage errorMessage = new ErrorMessage("Error: " + e.getMessage());
-            String errorJson = gson.toJson(errorMessage);
+            errorManaging(session, e);
+        }
+    }
 
-            if (session.isOpen()) {
-                session.getRemote().sendString(errorJson);
+    private void errorManaging(Session session, Exception e) throws IOException {
+        ErrorMessage errorMessage = new ErrorMessage("Error: " + e.getMessage());
+        String errorJson = gson.toJson(errorMessage);
+
+        if (session.isOpen()) {
+            session.getRemote().sendString(errorJson);
+        }
+    }
+
+    private void setPlayerNull(GameData data, String username) throws DataAccessException {
+        if (isPlayer(username, data)) {
+            GameData newData = data;
+            if (data.whiteUsername() != null && data.whiteUsername().equals(username)){
+                newData = new GameData(data.gameID(), null, data.blackUsername(), data.gameName(), data.game());
+            }
+            if (data.blackUsername() != null && data.blackUsername().equals(username)){
+                newData = new GameData(data.gameID(), data.whiteUsername(), null, data.gameName(), data.game());
+            }
+            try {
+                gameDAO.updateGame(newData.gameID(), newData);
+            }
+            catch (DataAccessException e) {
+                throw new DataAccessException("Unable to update game in database");
             }
         }
     }
 
     private boolean isPlayer(String username, GameData data) {
-        return data.whiteUsername().equals(username) || data.blackUsername().equals(username);
+        if (data.whiteUsername() != null && data.whiteUsername().equals(username)) {
+            return true;
+        }
+        return data.blackUsername() != null && data.blackUsername().equals(username);
     }
 
     private void setDataAccessObjects() {
