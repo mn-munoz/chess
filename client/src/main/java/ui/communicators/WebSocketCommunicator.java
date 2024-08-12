@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import exception.ServerException;
 import ui.ServerMessageObserver;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -13,10 +16,8 @@ import java.net.URISyntaxException;
 
 public class WebSocketCommunicator extends Endpoint {
     Session session;
-    private final ServerMessageObserver observer;
 
     public WebSocketCommunicator(String baseUrl, ServerMessageObserver observer) throws ServerException {
-        this.observer = observer;
         try {
             baseUrl = baseUrl.replace("http", "ws");
             URI socketURI = new URI(baseUrl + "/ws");
@@ -27,9 +28,14 @@ public class WebSocketCommunicator extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-//                    Notification notification = new Gson().fromJson(message, Notification.class);
-//                    notificationHandler.notify(notification);
+                    Gson gson = new Gson();
+                    ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case LOAD_GAME -> serverMessage = gson.fromJson(message, LoadGameMessage.class);
+                        case NOTIFICATION -> serverMessage = gson.fromJson(message, Notification.class);
+                        case ERROR -> serverMessage = gson.fromJson(message, ErrorMessage.class);
+                    }
+
                     observer.notify(serverMessage);
                 }
             });
@@ -42,14 +48,11 @@ public class WebSocketCommunicator extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        System.out.println("WebSocket opened");
-        this.session = session;
     }
 
     public void sendCommand(UserGameCommand command) throws ServerException {
         try {
             if (session != null && session.isOpen()) {
-                System.out.println("Sending command: " + command.getCommandType());
                 session.getBasicRemote().sendText(new Gson().toJson(command));
             } else {
                 throw new ServerException("WebSocket session is not open.");

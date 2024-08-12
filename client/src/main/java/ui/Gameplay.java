@@ -1,13 +1,23 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ServerException;
+import websocket.commands.LeaveCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
+import java.lang.Math;
+
+import java.util.Scanner;
 
 public class Gameplay implements ServerMessageObserver{
     private final String authToken;
     private final ServerFacade serverFacade;
     private final int gameId;
     private final String teamColor;
+    private ChessGame game;
 
     Gameplay(String authToken, int gameId, ServerFacade serverFacade, String teamColor) {
         this.authToken = authToken;
@@ -28,20 +38,63 @@ public class Gameplay implements ServerMessageObserver{
 
     public void joinGame() throws ServerException {
         serverFacade.joinGame(authToken, gameId, teamColor);
-
     }
 
     // TODO add functionality for UI
 
+    public void gameLoop() {
+        Scanner scanner = new Scanner(System.in);
+        boolean continueGameLoop = true;
+
+        while (continueGameLoop) {
+            System.out.println("Type \"help\" to see available commands.");
+            System.out.print("[GAMEPLAY] >>> ");
+            String[] input = scanner.nextLine().split("\\s");
+
+            switch (input[0]) {
+                case "help":
+                    if (input.length != 1 ) {
+                        System.out.println("Help only takes one argument.");
+                    } else {
+                        printGameplayMenu();
+                    }
+                    break;
+                case "leave":
+                    if (input.length != 1 ) {
+                        System.out.println("Leave only takes one argument.");
+                    } else {
+                        LeaveCommand command = new LeaveCommand(authToken, gameId);
+                        try {
+                            serverFacade.leaveGame(command);
+                            continueGameLoop = false; // Exit the loop when leaving the game
+                        } catch (ServerException e) {
+                            System.out.println("Error trying to leave game");
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid command");
+            }
+        }
+
+    }
+
+    private void setGame(ChessGame game) {
+        this.game = game;
+    }
+
     @Override
     public void notify(ServerMessage message) {
-        System.out.println(message.getServerMessageType());
         switch (message.getServerMessageType()) {
             case LOAD_GAME:
+                LoadGameMessage loadGame = (LoadGameMessage) message;
+                setGame(loadGame.getGame());
+                System.out.println("\n");
                 if ("WHITE".equalsIgnoreCase(teamColor)) {
-                    printChessboardWhite();
+                    printChessboard(game, teamColor);
                 } else if ("BLACK".equalsIgnoreCase(teamColor)) {
-                    printChessboardBlack();
+                    printChessboard(game, teamColor);
                 }
                 break;
             case ERROR:
@@ -53,48 +106,25 @@ public class Gameplay implements ServerMessageObserver{
         }
     }
 
-    private void printChessboardBlack() {
-
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-
-                if (i == 0 || i == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    System.out.print(" " + getLetter(9 - j) + " ");
-                    System.out.print(EscapeSequences.RESET_BG_COLOR);
-                }
-
-                if (j == 0 || j == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    if (i > 0 && i < 9) {
-                        System.out.print(" " + i + " ");
-                    }
-                    System.out.print(EscapeSequences.RESET_BG_COLOR);
-                }
-
-                String piece = getPieceAtPosition(i, 9 - j);
-                if (i > 0 && i < 9 && j > 0 && j < 9) {
-                    if ((i + j) % 2 == 0) {
-                        setWhiteSquare();
-                    }
-                    else {
-                        setBlackSquare();
-                    }
-                    System.out.print(piece);
-                }
-            }
-            System.out.println();
-        }
+    private void printGameplayMenu() {
+        System.out.println("redraw - redraws chessboard");
+        System.out.println("leave - leaves game and go back to menu");
+        System.out.println("move - <EXAMPLE: c2c3> moves chess piece");
+        System.out.println("resign - forfeit game (Will not leave game)");
+        System.out.println("highlight - highlights all legal moves");
     }
 
-    private void printChessboardWhite() {
-
+    private void printChessboard(ChessGame game, String teamColor) {
+        int modifier = 0;
+        if (teamColor.equalsIgnoreCase("BLACK")) {
+            modifier = 9;
+        }
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
 
                 if (i == 0 || i == 9) {
                     System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    System.out.print(" " + getLetter(j) + " ");
+                    System.out.print(" " + getLetter(Math.abs(modifier - j)) + " ");
                     System.out.print(EscapeSequences.RESET_BG_COLOR);
                 }
 
@@ -106,7 +136,6 @@ public class Gameplay implements ServerMessageObserver{
                     System.out.print(EscapeSequences.RESET_BG_COLOR);
                 }
 
-                String piece = getPieceAtPosition( 9 - i, j);
                 if (i > 0 && i < 9 && j > 0 && j < 9) {
                     if ((i + j) % 2 == 0) {
                         setWhiteSquare();
@@ -114,49 +143,55 @@ public class Gameplay implements ServerMessageObserver{
                     else {
                         setBlackSquare();
                     }
-                    System.out.print(piece);
+                    System.out.print(getPieceAtPosition(game.getBoard(),9 - i, Math.abs(modifier - j)));
                 }
             }
             System.out.println();
         }
+
     }
 
-    private static String getPieceAtPosition(int row, int col) {
-        if (row == 1) {
-            return getWhitePiece(col);
+    private String getPieceAtPosition(ChessBoard board, int row, int col) {
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+
+        if (piece == null) {
+            return EscapeSequences.EMPTY;
         }
-        if (row == 2) {
-            return EscapeSequences.WHITE_PAWN;
+
+        switch (piece.getPieceType()) {
+            case KING:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_KING;
+                }
+                else return EscapeSequences.BLACK_KING;
+            case QUEEN:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_QUEEN;
+                }
+                else return EscapeSequences.BLACK_QUEEN;
+            case ROOK:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_ROOK;
+                }
+                else return EscapeSequences.BLACK_ROOK;
+            case BISHOP:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_BISHOP;
+                }
+                else return EscapeSequences.BLACK_BISHOP;
+            case KNIGHT:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_KNIGHT;
+                }
+                else return EscapeSequences.BLACK_KNIGHT;
+            case PAWN:
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    return EscapeSequences.WHITE_PAWN;
+                }
+                else return EscapeSequences.BLACK_PAWN;
         }
-        if (row == 7) {
-            return EscapeSequences.BLACK_PAWN;
-        }
-        if (row == 8) {
-            return getBlackPiece(col);
-        }
+
         return EscapeSequences.EMPTY;
-    }
-
-    private static String getWhitePiece(int col) {
-        return switch (col) {
-            case 1, 8 -> EscapeSequences.WHITE_ROOK;
-            case 2, 7 -> EscapeSequences.WHITE_KNIGHT;
-            case 3, 6 -> EscapeSequences.WHITE_BISHOP;
-            case 4 -> EscapeSequences.WHITE_QUEEN;
-            case 5 -> EscapeSequences.WHITE_KING;
-            default -> EscapeSequences.EMPTY;
-        };
-    }
-
-    private static String getBlackPiece(int col) {
-        return switch (col) {
-            case 1, 8 -> EscapeSequences.BLACK_ROOK;
-            case 2, 7 -> EscapeSequences.BLACK_KNIGHT;
-            case 3, 6 -> EscapeSequences.BLACK_BISHOP;
-            case 4 -> EscapeSequences.BLACK_QUEEN;
-            case 5 -> EscapeSequences.BLACK_KING;
-            default -> EscapeSequences.EMPTY;
-        };
     }
 
     private static char getLetter(int col) {

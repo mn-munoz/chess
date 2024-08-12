@@ -12,8 +12,7 @@ import ui.facaderesults.FacadeListGamesResult;
 import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
 import websocket.commands.ConnectCommand;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.commands.LeaveCommand;
 
 public class ServerFacade {
 
@@ -89,6 +88,14 @@ public class ServerFacade {
             this.ws = new WebSocketCommunicator(baseUrl, observer);
             ws.sendCommand(new ConnectCommand(authToken, gameId));
         } catch (Exception ex) {
+            throw new ServerException(ex.getMessage());
+        }
+    }
+
+    public void leaveGame(LeaveCommand command) throws ServerException {
+        try {
+            ws.sendCommand(command);
+        } catch (ServerException ex) {
             throw new ServerException(ex.getMessage());
         }
     }

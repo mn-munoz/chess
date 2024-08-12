@@ -84,6 +84,7 @@ public class PostLogin {
                     Gameplay gameplay = new Gameplay(authToken, activeGameID, serverFacade, chessTeam);
                     serverFacade.setObserver(gameplay);
                     gameplay.joinGame();
+                    gameplay.gameLoop();
 
                 } catch (Exception e) {
                     System.out.println("Unable to join game. Either game ID or team color not valid");

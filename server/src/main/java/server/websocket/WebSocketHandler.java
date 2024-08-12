@@ -205,7 +205,8 @@ public class WebSocketHandler {
 
     private String setTeamColor(UserGameCommand command, String userName) {
         try {
-            if (gameDAO.getGame(command.getGameID()).whiteUsername().equalsIgnoreCase(userName)) {
+            if ( gameDAO.getGame(command.getGameID()).whiteUsername() != null &&
+                    gameDAO.getGame(command.getGameID()).whiteUsername().equalsIgnoreCase(userName)) {
                 return "[WHITE]";
             }
             else {
