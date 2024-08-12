@@ -86,7 +86,8 @@ public class Gameplay implements ServerMessageObserver{
                     highlightFunctionality(input, hasResign);
                     break;
                 case "move":
-
+                    movePieceFunctionality(input, hasResign);
+                    break;
                 default:
                     System.out.println("Invalid command");
             }
@@ -143,7 +144,11 @@ public class Gameplay implements ServerMessageObserver{
         ChessMove finalMove = createChessMove(startPosition, endPosition, piece);
         MakeMoveCommand command = new MakeMoveCommand(authToken, gameId, finalMove);
 
-
+        try {
+            serverFacade.makeMove(command);
+        } catch (ServerException e) {
+            System.out.println("Unable to make move due to: " + e.getMessage());
+        }
     }
 
     private ChessMove createChessMove(ChessPosition startPosition, ChessPosition endPosition,

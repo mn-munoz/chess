@@ -13,6 +13,7 @@ import ui.facaderesults.FacadeLoginResult;
 import ui.facaderesults.FacadeRegisterResult;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.ResignCommand;
 
 public class ServerFacade {
@@ -102,6 +103,14 @@ public class ServerFacade {
     }
 
     public void resignGame(ResignCommand command) throws ServerException {
+        try {
+            ws.sendCommand(command);
+        } catch (ServerException ex) {
+            throw new ServerException(ex.getMessage());
+        }
+    }
+
+    public void makeMove(MakeMoveCommand command) throws ServerException {
         try {
             ws.sendCommand(command);
         } catch (ServerException ex) {
