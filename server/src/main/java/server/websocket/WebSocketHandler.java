@@ -72,9 +72,8 @@ public class WebSocketHandler {
 
     public void handleMakeMove(Session session, MakeMoveCommand command) throws IOException {
         try {
-
-            ChessGame game = gameDAO.getGame(command.getGameID()).game();
             GameData gameData = gameDAO.getGame(command.getGameID());
+            ChessGame game = gameData.game();
             String userName = authDAO.getAuth(command.getAuthToken()).username();
             String teamColor = setTeamColor(command, userName);
 
@@ -84,13 +83,24 @@ public class WebSocketHandler {
                 throw new IllegalArgumentException(userName + " is an observer and is not allowed to make moves");
             }
 
+            System.out.println(gameData.game().getTeamTurn());
+
+            if (!isCorrectPlayer(gameData, userName)) {
+                throw new IllegalArgumentException("Not allowed to move pieces from opposite team");
+            }
+
+
             if (isValidMove(game, move)) {
                 game.makeMove(move);
+
             } else {
                 throw new IllegalArgumentException("Move " + move.getEndPosition() + " is not a valid move");
             }
 
-            LoadGameMessage loadGame = new LoadGameMessage(game);
+            gameDAO.updateGame(command.getGameID(), gameData);
+
+
+            LoadGameMessage loadGame = new LoadGameMessage(gameData.game());
             String jsonMessage = gson.toJson(loadGame);
             session.getRemote().sendString(jsonMessage);
             connections.broadcast(userName, loadGame);
@@ -150,20 +160,29 @@ public class WebSocketHandler {
         return false;
     }
 
-    private ChessGame.TeamColor getTeamColor(ChessGame game, ChessMove move) {
+    private boolean isCorrectPlayer(GameData data, String username) {
+        if (data.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+            return data.whiteUsername().equals(username);
+        }
+        else {
+            return data.blackUsername().equals(username);
+        }
+    }
+
+    private ChessGame.TeamColor getTeamColor(ChessGame game, ChessPosition position) {
         ChessBoard board = game.getBoard();
 
-        return board.getPiece(move.getEndPosition()).getTeamColor();
+        return board.getPiece(position).getTeamColor();
     }
 
     private boolean isSpecialEvent(ChessGame game, ChessMove move) {
-        ChessGame.TeamColor teamColor = getTeamColor(game, move);
+        ChessGame.TeamColor teamColor = getTeamColor(game, move.getEndPosition());
 
         return game.isInCheck(teamColor) || game.isInCheckmate(teamColor) || game.isInStalemate(teamColor);
     }
 
     private String getSpecialEvent(ChessGame game, ChessMove move) {
-        ChessGame.TeamColor teamColor = getTeamColor(game, move);
+        ChessGame.TeamColor teamColor = getTeamColor(game, move.getEndPosition());
 
         if (game.isInStalemate(teamColor)) {
             return "stalemate";
