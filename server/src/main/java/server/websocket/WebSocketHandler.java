@@ -12,6 +12,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -38,7 +39,7 @@ public class WebSocketHandler {
             case CONNECT -> handleConnect(session, command);
             case MAKE_MOVE -> handleMakeMove(session, gson.fromJson(message, MakeMoveCommand.class));
             case LEAVE -> handleLeave(session, new LeaveCommand(command.getAuthToken(), command.getGameID()));
-            case RESIGN -> handleResign(session, command);
+            case RESIGN -> handleResign(session, new ResignCommand(command.getAuthToken(), command.getGameID()));
         }
     }
 
