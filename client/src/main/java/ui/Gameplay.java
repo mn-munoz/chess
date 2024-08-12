@@ -39,6 +39,7 @@ public class Gameplay implements ServerMessageObserver{
 
     @Override
     public void notify(ServerMessage message) {
+        System.out.println(message.getServerMessageType());
         switch (message.getServerMessageType()) {
             case LOAD_GAME:
                 if ("WHITE".equalsIgnoreCase(teamColor)) {
