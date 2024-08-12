@@ -37,13 +37,9 @@ public class WebSocketHandler {
         switch (command.getCommandType()) {
             case CONNECT -> handleConnect(session, command);
             case MAKE_MOVE -> handleMakeMove(session, gson.fromJson(message, MakeMoveCommand.class));
-            case LEAVE -> justSomething();
-            case RESIGN -> justSomething();
+            case LEAVE -> handleLeave();
+            case RESIGN -> handleResign();
         }
-    }
-
-    public void justSomething() {
-        System.out.println("just Something");
     }
 
     public void handleLeave() {
