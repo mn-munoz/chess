@@ -1,15 +1,15 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ServerException;
 import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import java.lang.Math;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Gameplay implements ServerMessageObserver{
@@ -43,6 +43,7 @@ public class Gameplay implements ServerMessageObserver{
     public void gameLoop() {
         Scanner scanner = new Scanner(System.in);
         boolean continueGameLoop = true;
+        boolean hasResign = false;
 
         while (continueGameLoop) {
             System.out.println("Type \"help\" to see available commands.");
@@ -67,15 +68,169 @@ public class Gameplay implements ServerMessageObserver{
                             continueGameLoop = false; // Exit the loop when leaving the game
                         } catch (ServerException e) {
                             System.out.println("Error trying to leave game");
-                            System.out.println(e.getMessage());
                         }
                     }
                     break;
                 case "redraw":
-                    printChessboard(game, teamColor);
+                    if (input.length != 1 ) {
+                        System.out.println("Help only takes one argument.");
+                    } else {
+                        printChessboard(game, teamColor);
+                    }
                     break;
+                case "resign":
+                    resignFunctionality(input);
+                    hasResign = true;
+                    break;
+                case "highlight":
+                    highlightFunctionality(input, hasResign);
+                    break;
+                case "move":
+
                 default:
                     System.out.println("Invalid command");
+            }
+
+        }
+
+    }
+
+    private void movePieceFunctionality(String[] input, boolean hasResign) {
+        if (hasResign) {
+            return;
+        }
+
+        if (input.length != 2) {
+            System.out.println("Move command takes 1 argument: move c2c3");
+            return;
+        }
+        String move = input[1].toUpperCase();
+
+        if (move.length() != 4) {
+            System.out.println("Move is not in correct format: Example - c2c3");
+            return;
+        }
+
+        int startCol = getColumNum(move.charAt(0));
+        int endCol = getColumNum(move.charAt(2));
+        int startRow;
+        int endRow;
+
+        try {
+            startRow = Character.getNumericValue(move.charAt(1));
+            endRow = Character.getNumericValue(move.charAt(3));
+        } catch (Exception e) {
+            System.out.println("Unknown row number");
+            return;
+        }
+
+        if (startCol == 0 || endCol == 0 ||
+                startRow < 1 || startCol > 8 ||
+                endRow < 1 || endRow > 8) {
+            System.out.println("Invalid Move");
+            return;
+        }
+
+        ChessPosition startPosition = new ChessPosition(startRow, startCol);
+        ChessPosition endPosition = new ChessPosition(endRow, endCol);
+        ChessPiece piece = game.getBoard().getPiece(startPosition);
+
+        if (piece == null) {
+            System.out.println("Empty spot selected");
+            return;
+        }
+
+        ChessMove finalMove = createChessMove(startPosition, endPosition, piece);
+        MakeMoveCommand command = new MakeMoveCommand(authToken, gameId, finalMove);
+
+
+    }
+
+    private ChessMove createChessMove(ChessPosition startPosition, ChessPosition endPosition,
+                                      ChessPiece piece) {
+
+        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            return new ChessMove(startPosition, endPosition, null);
+        }
+
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE && endPosition.getRow() == 8
+        || piece.getTeamColor() == ChessGame.TeamColor.BLACK && endPosition.getRow() == 1) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Pawn can be promoted to the following QUEEN, BISHOP, ROOK, KNIGHT: ");
+            String promotion = scanner.nextLine();
+
+            while (true) {
+                switch (promotion.toLowerCase()) {
+                    case "queen": return new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN);
+                    case "bishop": return new ChessMove(startPosition, endPosition, ChessPiece.PieceType.BISHOP);
+                    case "rook": return new ChessMove(startPosition, endPosition, ChessPiece.PieceType.ROOK);
+                    case "knight": return new ChessMove(startPosition, endPosition, ChessPiece.PieceType.KNIGHT);
+                    default: System.out.println("Not valid promotion type");
+                }
+            }
+        }
+
+        return new ChessMove(startPosition, endPosition, null);
+    }
+
+    private int getColumNum(char letter) {
+        return switch (letter) {
+            case 'A' -> 1;
+            case 'B' -> 2;
+            case 'C' -> 3;
+            case 'D' -> 4;
+            case 'E' -> 5;
+            case 'F' -> 6;
+            case 'G' -> 7;
+            case 'H' -> 8;
+            default -> 0;
+        };
+    }
+
+    private void highlightFunctionality(String[] input, boolean hasResign) {
+        if (hasResign) {
+            System.out.println("Cannot highlight pieces if resign");
+            return;
+        }
+        if (input.length != 2) {
+            System.out.println("Highlight command takes 1 argument: highlight a1");
+            return;
+        }
+
+        String move = input[1].toUpperCase();
+        if (move.length() != 2) {
+            System.out.println("Move is not in correct format: Example - a1");
+            return;
+        }
+
+        int colNum = getColumNum(move.charAt(0));
+        int rowNum;
+        try {
+            rowNum = Character.getNumericValue(move.charAt(1));
+        } catch (Exception e) {
+            System.out.println("Unknown row number");
+            return;
+        }
+
+        if (colNum == 0 || rowNum < 1 || rowNum > 8) {
+            System.out.println("Invalid Move");
+            return;
+        }
+
+        ChessPosition startPosition = new ChessPosition(rowNum, colNum);
+        highlightPieceMoves(game, teamColor, startPosition);
+    }
+
+    private void resignFunctionality(String[] input) {
+        if (input.length != 1 ) {
+            System.out.println("Help only takes one argument.");
+        } else {
+            ResignCommand command = new ResignCommand(authToken, gameId);
+            try {
+                serverFacade.resignGame(command);
+            } catch (ServerException e) {
+                System.out.println("Error resigning from game");
+                System.out.print(e.getMessage());
             }
         }
 
@@ -110,9 +265,9 @@ public class Gameplay implements ServerMessageObserver{
     private void printGameplayMenu() {
         System.out.println("redraw - redraws chessboard"); // done
         System.out.println("leave - leaves game and go back to menu"); // done
-        System.out.println("move - <EXAMPLE: c2c3> moves chess piece");
-        System.out.println("resign - forfeit game (Will not leave game)");
-        System.out.println("highlight - <EXAMPLE: c2> highlights all legal moves for given piece");
+        System.out.println("move <EXAMPLE: c2c3> - moves chess piece");
+        System.out.println("resign - forfeit game (Will not leave game)"); // I think done
+        System.out.println("highlight - <EXAMPLE: c2> highlights all legal moves for given piece"); // done;
     }
 
     private void printChessboard(ChessGame game, String teamColor) {
@@ -123,33 +278,98 @@ public class Gameplay implements ServerMessageObserver{
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
 
-                if (i == 0 || i == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    System.out.print(" " + getLetter(Math.abs(modifier - j)) + " ");
-                    System.out.print(EscapeSequences.RESET_BG_COLOR);
-                }
-
-                if (j == 0 || j == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    if (i > 0 && i < 9) {
-                        System.out.print(" " + (9 - i) + " ");
-                    }
-                    System.out.print(EscapeSequences.RESET_BG_COLOR);
-                }
+                setBorder(i, j, modifier);
 
                 if (i > 0 && i < 9 && j > 0 && j < 9) {
                     if ((i + j) % 2 == 0) {
-                        setWhiteSquare();
+                        setSquare(EscapeSequences.SET_BG_COLOR_WHITE);
                     }
                     else {
-                        setBlackSquare();
+                        setSquare(EscapeSequences.SET_BG_COLOR_DARK_GREY);
                     }
-                    System.out.print(getPieceAtPosition(game.getBoard(),9 - i, Math.abs(modifier - j)));
+                    System.out.print(getPieceAtPosition(game.getBoard(),(Math.abs(9 - i - modifier)), Math.abs(modifier - j)));
                 }
             }
             System.out.println();
         }
 
+    }
+
+    private void highlightPieceMoves(ChessGame game, String teamColor, ChessPosition position) {
+        int modifier = 0;
+        if (teamColor.equalsIgnoreCase("BLACK")) {
+            modifier = 9;
+        }
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+
+                setBorder(i, j, modifier);
+
+                if (i > 0 && i < 9 && j > 0 && j < 9) {
+                    if ((i + j) % 2 == 0) {
+                        setSquare(EscapeSequences.SET_BG_COLOR_WHITE);
+                    }
+                    else {
+                        setSquare(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+                    }
+                    if (Math.abs(9 - i - modifier) == position.getRow() &&
+                            Math.abs(modifier - j) == position.getColumn()) {
+                        setSquare(EscapeSequences.SET_BG_COLOR_YELLOW);
+
+                    }
+                    highlightValidMoves(game, position, i, j, modifier);
+                    System.out.print(getPieceAtPosition(game.getBoard(), Math.abs(9 - i - modifier), Math.abs(modifier - j)));
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    private void highlightValidMoves(ChessGame game, ChessPosition position, int i, int j, int modifier) {
+        ArrayList<ChessMove> validMoves = getValidMoves(game, position);
+        for (ChessMove move : validMoves) {
+            if (move.getEndPosition().getRow() == Math.abs(9 - i - modifier) &&
+                    move.getEndPosition().getColumn() == Math.abs(modifier - j) &&
+                    (i + j) % 2 == 0) {
+                setSquare(EscapeSequences.SET_BG_COLOR_GREEN);
+            }
+            else if (move.getEndPosition().getRow() == Math.abs(9 - i - modifier) &&
+                    move.getEndPosition().getColumn() == Math.abs(modifier - j) &&
+                    !((i + j) % 2 == 0)) {
+                setSquare(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+            }
+        }
+    }
+
+    private ArrayList<ChessMove> getValidMoves(ChessGame game, ChessPosition position) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+
+        ChessPiece piece = game.getBoard().getPiece(position);
+
+        if (piece == null) {
+            return validMoves;
+        }
+
+        validMoves = (ArrayList<ChessMove>) game.validMoves(position);
+
+        return validMoves;
+    }
+
+    private void setBorder(int i, int j, int modifier) {
+        if (i == 0 || i == 9) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+            System.out.print(" " + getLetter(Math.abs(modifier - j)) + " ");
+            System.out.print(EscapeSequences.RESET_BG_COLOR);
+        }
+
+        if (j == 0 || j == 9) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+            if (i > 0 && i < 9) {
+                System.out.print(" " + (Math.abs(9 - i - modifier)) + " ");
+            }
+            System.out.print(EscapeSequences.RESET_BG_COLOR);
+        }
     }
 
     private String getPieceAtPosition(ChessBoard board, int row, int col) {
@@ -209,12 +429,8 @@ public class Gameplay implements ServerMessageObserver{
         };
     }
 
-    private void setBlackSquare() {
-        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-    }
-
-    private void setWhiteSquare() {
-        System.out.print(EscapeSequences.SET_BG_COLOR_WHITE);
+    private void setSquare(String sequence) {
+        System.out.print(sequence);
     }
 
 }

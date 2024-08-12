@@ -52,7 +52,7 @@ public class WebSocketHandler {
                 setPlayerNull(gameData, userName);
             }
 
-            Notification notification = new Notification(userName + " has left the game");
+            Notification notification = new Notification(userName + setTeamColor(command, userName )+" has left the game");
             connections.add(userName, session, gameData.gameID());
             connections.broadcast(userName, notification);
 
@@ -82,7 +82,7 @@ public class WebSocketHandler {
             game.setGameOver(true);
             gameDAO.updateGame(gameData.gameID(), gameData);
 
-            Notification notification = new Notification(userName + " has resigned.");
+            Notification notification = new Notification(userName + setTeamColor(command, userName )+" has resigned.");
             String jsonMessage = gson.toJson(notification);
             session.getRemote().sendString(jsonMessage);
             connections.add(userName, session, gameData.gameID());
