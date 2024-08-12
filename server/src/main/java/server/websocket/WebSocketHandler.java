@@ -46,6 +46,14 @@ public class WebSocketHandler {
         System.out.println("just Something");
     }
 
+    public void handleLeave() {
+
+    }
+
+    public void handleResign() {
+
+    }
+
     public void handleConnect(Session session, UserGameCommand command) throws IOException {
         try {
 
